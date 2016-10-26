@@ -30,6 +30,7 @@ function mgfit_synth_spec, lines, spec
 ;          { wavelength: 0.0, 
 ;            flux:0.0, 
 ;            residual:0.0}
+; 
 ; RETURN:  the modified spectrum
 ;          { wavelength: 0.0, 
 ;            flux:0.0, 
