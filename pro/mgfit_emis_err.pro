@@ -3,8 +3,8 @@ function mgfit_emis_err, syntheticspec, spectrumdata, emissionlines
 ; NAME:
 ;     mgfit_emis_err
 ; PURPOSE:
-;     estimate the uncertainties introduced by fitting residuals and 
-;     the white noise quantified using the signal-dependent noise model 
+;     estimate the uncertainties introduced by the best-fit model residuals 
+;     and the white noise quantified using the signal-dependent noise model 
 ;     of least-squares Gaussian fitting (Lenz & Ayres 1992; 
 ;     1992PASP..104.1104L) based on on the work of Landman, Roussel-Dupre, 
 ;     and Tanigawa (1982; 1982ApJ...261..732L).
