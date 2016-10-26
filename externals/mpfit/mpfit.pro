@@ -303,6 +303,14 @@
 ;  that the derivatives computed in two different ways have the same
 ;  numerical sign and the same order of magnitude, since these are the
 ;  most common programming mistakes.
+;
+;  A line of this form may also appear 
+;
+;   # FJAC_MASK = 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 
+;
+;  This line indicates for which parameters explicit derivatives are
+;  expected.  A list of all-1s indicates all explicit derivatives for
+;  all parameters are requested from the user function.
 ;    
 ;  
 ; CONSTRAINING PARAMETER VALUES WITH THE PARINFO KEYWORD
@@ -1278,7 +1286,7 @@
 ;      (thanks to Sergey Koposov) CM, 14 Apr 2009
 ;   Use individual functions for all possible MPFIT_CALL permutations,
 ;      (and make sure the syntax is right) CM, 01 Sep 2009
-;   Correct behavior of MPMAXSTEP when some parameters are frozen,fitGH
+;   Correct behavior of MPMAXSTEP when some parameters are frozen,
 ;      thanks to Josh Destree, CM, 22 Nov 2009
 ;   Update the references section, CM, 22 Nov 2009
 ;   1.70 - Add the VERSION and MIN_VERSION keywords, CM, 22 Nov 2009
@@ -1295,12 +1303,14 @@
 ;          PFREE_INDEX; add a fencepost to prevent recursion
 ;          CM, 2010-10-27
 ;   1.79 - Documentation corrections.  CM, 2011-08-26
+;   1.81 - Fix bug in interaction of AUTODERIVATIVE=0 and .MPSIDE=3;
+;          Document FJAC_MASK. CM, 2012-05-08
 ;
-;  $Id: mpfit.pro,v 1.79 2011/12/08 17:50:32 cmarkwar Exp $
+;  $Id: mpfit.pro,v 1.82 2012/09/27 23:59:44 cmarkwar Exp $
 ;-
 ; Original MINPACK by More' Garbow and Hillstrom, translated with permission
 ; Modifications and enhancements are:
-; Copyright (C) 1997-2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, Craig Markwardt
+; Copyright (C) 1997-2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012 Craig Markwardt
 ; This software is provided as is without any warranty whatsoever.
 ; Permission to use, copy, modify, and distribute modified or
 ; unmodified copies is granted, provided this copyright and disclaimer
@@ -1484,12 +1494,14 @@ function mpfit_fdjac2, fcn, x, fvec, step, ulimited, ulimit, dside, $
   ;;   2. AUTODERIVATIVE=1, but P[i].MPSIDE EQ 3
 
   if keyword_set(autoderiv) EQ 0 OR max(dside[ifree] EQ 3) EQ 1 then begin
-      fjac = intarr(nall)
+      fjac_mask = intarr(nall)
       ;; Specify which parameters need derivatives
-      ;;            ---- Case 2 ------     ----- Case 1 -----
-      fjac[ifree] = (dside[ifree] EQ 3) OR (keyword_set(autoderiv) EQ 0)
-      if has_debug_deriv then print, fjac, format='("# FJAC_MASK = ",100000(I0," ",:))'
+      ;;                  ---- Case 2 ------     ----- Case 1 -----
+      fjac_mask[ifree] = (dside[ifree] EQ 3) OR (keyword_set(autoderiv) EQ 0)
+      if has_debug_deriv then $
+        print, fjac_mask, format='("# FJAC_MASK = ",100000(I0," ",:))'
 
+      fjac = fjac_mask  ;; Pass the mask to the calling function as FJAC
       mperr = 0
       fp = mpfit_call(fcn, xall, fjac, _EXTRA=fcnargs)
       iflag = mperr
@@ -1515,12 +1527,13 @@ function mpfit_fdjac2, fcn, x, fvec, step, ulimited, ulimit, dside, $
       ;; Select only the free parameters
       if n_elements(ifree) LT nall then $
         fjac = reform(fjac[*,ifree], m, n, /overwrite)
-
-      ;; If there are no more free parameters to analyze, then
-      ;; return now, (but not if we are debugging the derivatives)
-      if ((keyword_set(autoderiv) EQ 0) OR $
-          (min(dside[ifree]) EQ 1) OR $
-          (has_debug_deriv EQ 0)) then return, fjac
+      
+      ;; Are we done computing derivatives?  The answer is, YES, if we
+      ;; computed explicit derivatives for all free parameters, EXCEPT
+      ;; when we are going on to compute debugging derivatives.
+      if min(fjac_mask[ifree]) EQ 1 AND NOT has_debug_deriv then begin
+          return, fjac
+      endif
   endif
 
   ;; Final output array, if it was not already created above
@@ -2576,7 +2589,7 @@ end
 ;; Parse the RCSID revision number
 function mpfit_revision
   ;; NOTE: this string is changed every time an RCS check-in occurs
-  revision = '$Revision: 1.79 $'
+  revision = '$Revision: 1.82 $'
 
   ;; Parse just the version number portion
   revision = stregex(revision,'\$'+'Revision: *([0-9.]+) *'+'\$',/extract,/sub)
@@ -3299,6 +3312,7 @@ function mpfit, fcn, xall, FUNCTARGS=fcnargs, SCALE_FCN=scalfcn, $
       ;; See if any "pegged" values should keep their derivatives
       if (nlpeg GT 0) then begin
           ;; Total derivative of sum wrt lower pegged parameters
+          ;;   Note: total(fvec*fjac[*,i]) is d(CHI^2)/dX[i]
           for i = 0L, nlpeg-1 do begin
               sum = total(fvec * fjac[*,whlpeg[i]])
               if sum GT 0 then fjac[*,whlpeg[i]] = 0
@@ -3316,24 +3330,39 @@ function mpfit, fcn, xall, FUNCTARGS=fcnargs, SCALE_FCN=scalfcn, $
   ;; Save a copy of the Jacobian if the user requests it...
   if keyword_set(calc_fjac) then output_fjac = fjac
 
+  ;; =====================
   ;; Compute the QR factorization of the jacobian
   catch_msg = 'calling MPFIT_QRFAC'
-  mpfit_qrfac, fjac, ipvt, wa1, wa2, /pivot
+  ;;  IN:      Jacobian        
+  ;; OUT:      Hh Vects  Permutation  RDIAG  ACNORM
+  mpfit_qrfac, fjac,     ipvt,        wa1,   wa2, /pivot
+  ;; Jacobian - jacobian matrix computed by mpfit_fdjac2
+  ;; Hh vects - house holder vectors from QR factorization & R matrix
+  ;; Permutation - permutation vector for pivoting
+  ;; RDIAG - diagonal elements of R matrix
+  ;; ACNORM - norms of input Jacobian matrix before factoring
 
+  ;; =====================
   ;; On the first iteration if "diag" is unspecified, scale
   ;; according to the norms of the columns of the initial jacobian
   catch_msg = 'rescaling diagonal elements'
   if (iter EQ 1) then begin
+      ;; Input: WA2 = root sum of squares of original Jacobian matrix
+      ;;        DIAG = user-requested diagonal (not documented!)
+      ;;        FACTOR = user-requested norm factor (not documented!)
+      ;; Output: DIAG = Diagonal scaling values
+      ;;         XNORM = sum of squared scaled residuals
+      ;;         DELTA = rescaled XNORM
 
       if NOT keyword_set(rescale) OR (n_elements(diag) LT n) then begin
-          diag = wa2
-          wh = where (diag EQ 0, ct)
+          diag = wa2 ;; Calculated from original Jacobian
+          wh = where (diag EQ 0, ct) ;; Handle zero values
           if ct GT 0 then diag[wh] = one
       endif
       
       ;; On the first iteration, calculate the norm of the scaled x
       ;; and initialize the step bound delta 
-      wa3 = diag * x
+      wa3 = diag * x           ;; WA3 is temp variable
       xnorm = mpfit_enorm(wa3)
       delta = factor*xnorm
       if delta EQ zero then delta = zero + factor

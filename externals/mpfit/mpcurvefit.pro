@@ -63,25 +63,39 @@
 ;  applications which use finite-difference derivatives -- the default
 ;  -- the user function should be declared in the following way:
 ;
-;    PRO MYFUNCT, X, P, YMOD
-;     ; The independent variable is X
-;     ; Parameter values are passed in "P"
-;     YMOD = ... computed model values at X ...
+;    ; MYFUNCT - example user function
+;    ;   X - input independent variable (vector same size as data)
+;    ;   P - input parameter values (N-element array)
+;    ;   YMOD - upon return, user function values
+;    ;   DP - upon return, the user function must return
+;    ;          an ARRAY(M,N) of derivatives in this parameter
+;    ;
+;    PRO MYFUNCT, x, p, ymod, dp
+;     ymod = F(x, p)         ;; Model function
+;     
+;     if n_params() GE 4  then begin
+;       ; Create derivative and compute derivative array
+;       dp = make_array(n_elements(x), n_elements(p), value=x[0]*0)
+;
+;       ; Compute derivative if requested by caller
+;       for i = 0, n_elements(p)-1 do dp(*,i) = FGRAD(x, p, i)
+;     endif
 ;    END
 ;
+;  where FGRAD(x, p, i) is a model function which computes the
+;  derivative of the model F(x,p) with respect to parameter P(i) at X.
 ;  The returned array YMOD must have the same dimensions and type as
-;  the "measured" Y values.
+;  the "measured" Y values.  The returned array DP[i,j] is the
+;  derivative of the ith function value with respect to the jth
+;  parameter.
 ;
 ;  User functions may also indicate a fatal error condition
 ;  using the ERROR_CODE common block variable, as described
 ;  below under the MPFIT_ERROR common block definition.
-;
-;  See the discussion under "ANALYTIC DERIVATIVES" and AUTODERIVATIVE
-;  in MPFIT.PRO if you wish to compute the derivatives for yourself.
-;  AUTODERIVATIVE is accepted and passed directly to MPFIT.  The user
-;  function must accept one additional parameter, DP, which contains
-;  the derivative of the user function with respect to each parameter
-;  at each data point, as described in MPFIT.PRO.
+; 
+;  If NODERIVATIVE=1, then MPCURVEFIT will never request explicit
+;  derivatives from the user function, and instead will user numerical
+;  estimates (i.e. by calling the user function multiple times).
 ;
 ; CONSTRAINING PARAMETER VALUES WITH THE PARINFO KEYWORD
 ;
@@ -482,10 +496,14 @@
 ;   Fix error in documentation, 26 Aug 2005, CM
 ;   Convert to IDL 5 array syntax (!), 16 Jul 2006, CM
 ;   Move STRICTARR compile option inside each function/procedure, 9 Oct 2006
+;   Fix bug in handling of explicit derivatives with errors/weights
+;     (the weights were not being applied), CM, 2012-07-22
+;   Add more documentation on calling interface for user function and
+;     parameter derivatives, CM, 2012-07-22
 ;
-;  $Id$
+;  $Id: mpcurvefit.pro,v 1.11 2012/07/22 21:08:58 cmarkwar Exp $
 ;-
-; Copyright (C) 1997-2000, 2002, 2003, 2004, 2005, Craig Markwardt
+; Copyright (C) 1997-2000, 2002, 2003, 2004, 2005, 2012, Craig Markwardt
 ; This software is provided as is without any warranty whatsoever.
 ; Permission to use, copy, modify, and distribute modified or
 ; unmodified copies is granted, provided this copyright and disclaimer
@@ -516,6 +534,13 @@ function mpcurvefit_eval, p, dp, _EXTRA=extra
 
   ;; Compute the deviates, applying the weights
   result = (y-f)*wts
+  
+  ;; Apply weights to derivative quantities                                     
+  if n_params() GT 1 then begin
+      np = n_elements(p)
+      nf = n_elements(f)
+      for j = 0L, np-1 do dp[j*nf] = dp[j*nf:j*nf+nf-1] * wts
+  endif
       
   ;; Make sure the returned result is one-dimensional.
   result = reform(result, n_elements(result), /overwrite)

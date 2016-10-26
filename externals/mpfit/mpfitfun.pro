@@ -73,12 +73,61 @@
 ;  using the ERROR_CODE common block variable, as described
 ;  below under the MPFIT_ERROR common block definition.
 ;
-;  See the discussion under "EXPLICIT DERIVATIVES" and AUTODERIVATIVE
-;  in MPFIT.PRO if you wish to compute the derivatives for yourself.
-;  AUTODERIVATIVE is accepted by MPFITFUN and passed directly to
-;  MPFIT.  The user function must accept one additional parameter, DP,
-;  which contains the derivative of the user function with respect to
-;  each parameter at each data point, as described in MPFIT.PRO.
+;  MPFIT by default calculates derivatives numerically via a finite
+;  difference approximation.  However, the user function *may*
+;  calculate the derivatives if desired, but only if the model
+;  function is declared with an additional position parameter, DP, as
+;  described below.
+;
+;  To enable explicit derivatives for all parameters, set
+;  AUTODERIVATIVE=0.
+;
+;  When AUTODERIVATIVE=0, the user function is responsible for
+;  calculating the derivatives of the user function with respect to
+;  each parameter.  The user function should be declared as follows:
+;
+;    ;
+;    ; MYFUNCT - example user function
+;    ;   P - input parameter values (N-element array)
+;    ;   DP - upon input, an N-vector indicating which parameters
+;    ;          to compute derivatives for; 
+;    ;        upon output, the user function must return
+;    ;          an ARRAY(M,N) of derivatives in this keyword
+;    ;   (keywords) - any other keywords specified by FUNCTARGS
+;    ; RETURNS - function values
+;    ;
+;    FUNCTION MYFUNCT, x, p, dp [, (additional keywords if desired)]
+;     model = F(x, p)         ;; Model function
+;     
+;     if n_params() GT 2 then begin
+;       ; Create derivative and compute derivative array
+;       requested = dp   ; Save original value of DP
+;       dp = make_array(n_elements(x), n_elements(p), value=x[0]*0)
+;
+;       ; Compute derivative if requested by caller
+;       for i = 0, n_elements(p)-1 do if requested(i) NE 0 then $
+;         dp(*,i) = FGRAD(x, p, i)
+;     endif
+;    
+;     return, resid
+;    END
+;
+;  where FGRAD(x, p, i) is a model function which computes the
+;  derivative of the model F(x,p) with respect to parameter P(i) at X.
+;
+;  Derivatives should be returned in the DP array. DP should be an
+;  ARRAY(m,n) array, where m is the number of data points and n is the
+;  number of parameters.  DP[i,j] is the derivative of the ith
+;  function value with respect to the jth parameter.
+;
+;  MPFIT may not always request derivatives from the user function.
+;  In those cases, the parameter DP is not passed.  Therefore
+;  functions can use N_PARAMS() to indicate whether they must compute
+;  the derivatives or not.
+;
+;  For additional information about explicit derivatives, including
+;  additional settings and debugging options, see the discussion under
+;  "EXPLICIT DERIVATIVES" and AUTODERIVATIVE in MPFIT.PRO.
 ;
 ; CONSTRAINING PARAMETER VALUES WITH THE PARINFO KEYWORD
 ;
@@ -604,10 +653,11 @@
 ;   Add keywords BEST_RESIDS, CALC_FJAC, BEST_FJAC, PFREE_INDEX;
 ;     update some documentation that had become stale, CM, 2010-10-28
 ;   Documentation corrections, CM, 2011-08-26
+;   Additional documentation about explicit derivatives, CM, 2012-07-23
 ;
-;  $Id: mpfitfun.pro,v 1.18 2011/12/08 17:43:34 cmarkwar Exp $
+;  $Id: mpfitfun.pro,v 1.19 2012/09/27 23:59:31 cmarkwar Exp $
 ;-
-; Copyright (C) 1997-2002, 2003, 2006, 2007, 2009, 2010, 2011, Craig Markwardt
+; Copyright (C) 1997-2002, 2003, 2006, 2007, 2009, 2010, 2011, 2012, Craig Markwardt
 ; This software is provided as is without any warranty whatsoever.
 ; Permission to use, copy, modify, and distribute modified or
 ; unmodified copies is granted, provided this copyright and disclaimer
@@ -630,7 +680,7 @@ function mpfitfun_eval, p, dp, _EXTRA=extra
   ;; depending on whether (a) FUNCTARGS was passed to MPFITFUN, which
   ;; is passed to this function as "hf"; or (b) the derivative
   ;; parameter "dp" is passed, meaning that derivatives should be
-  ;; calculated analytically by the functGAUSS1ion itself.
+  ;; calculated analytically by the function itself.
   if n_elements(fcnargs) GT 0 then begin
       if n_params() GT 1 then f = call_function(fcn, x, p, dp, _EXTRA=fcnargs)$
       else                    f = call_function(fcn, x, p, _EXTRA=fcnargs)
