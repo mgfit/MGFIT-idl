@@ -95,7 +95,7 @@ function mgfit_emis, specdata, redshift_initial, resolution_initial, emissionlin
   
   ;specdata2=specdata
   continuum=mgfit_contin(specdata)
-  specdata=mpfit_white_noise(specdata)
+  specdata=mpfit_whitenoise(specdata)
   
   specdata.flux=specdata.flux-continuum.flux
   negetive_loc=where(specdata.flux lt 0.0)
