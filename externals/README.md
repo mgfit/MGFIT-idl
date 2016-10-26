@@ -5,5 +5,6 @@ In this way, it removes the 'burden' of installation of additional libraries fro
 
 The respective copyrights, restrictions and disclaimers of the original libraries apply for these procedures.
 
-* ./astron/: required routines from  the [IDL Astronomy User's library](http://idlastro.gsfc.nasa.gov/homepage.html) 
-including the [Coyote Graphics Library](http://www.idlcoyote.com/documents/programs.php)
+* ./astron/: external library from the [IDL Astronomy User's library](http://idlastro.gsfc.nasa.gov/homepage.html)
+* ./coyote/: external library from the [Coyote Graphics Library](http://www.idlcoyote.com/documents/programs.php)
+* ./profit.: required routines from the [MPFIT IDL Library](http://cow.physics.wisc.edu/~craigm/idl/cmpfit.html) 
