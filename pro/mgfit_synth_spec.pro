@@ -7,7 +7,7 @@ function mgfit_synth_spec, lines, spec
 ; EXPLANATION:
 ;
 ; CALLING SEQUENCE:
-;     continuum=mgfit_contin(spectrumdata)
+;     spectrum=mgfit_synth_spec(lines, spectrum)
 ;
 ; INPUTS:
 ;     lines - the line list 
