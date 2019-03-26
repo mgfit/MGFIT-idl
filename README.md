@@ -1,5 +1,5 @@
 # MGFIT (IDL version)
-[![GitHub license](https://img.shields.io/aur/license/yaourt.svg)](https://github.com/mgfit/mgfit-idl/blob/master/LICENSE)
+[![GitHub license](https://img.shields.io/badge/license-GPL-blue.svg)](https://github.com/mgfit/mgfit-idl/blob/master/LICENSE)
 
 **MGFIT** - IDL/GDL Library for Least-Squares Minimization Genetic Algorithm Fitting
 
