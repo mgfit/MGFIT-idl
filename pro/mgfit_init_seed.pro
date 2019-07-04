@@ -1,20 +1,38 @@
+; docformat = 'rst'
+
 function mgfit_init_seed
 ;+
-; NAME:
-;     mgfit_init_seed
-; PURPOSE:
-;     initialize the random seed based on the system clock
-; EXPLANATION:
+;     This function initializes the random seed based on the system clock
 ;
-; CALLING SEQUENCE:
-;     continuum=mgfit_contin(spectrumdata)
+; :Returns:
+;     type=arrays. This function returns 20 random numbers.
 ;
-; RETURN:  20 randomNumbers
+; :Examples:
+;    For example::
 ;
-; REVISION HISTORY:
-;     Translated from FORTRAN in ALFA by R. Wessson
-;     to IDL by A. Danehkar, 20/07/2014
+;     IDL> ret=mgfit_init_seed()
+;
+; :Categories:
+;   Genetic Algorithm, Initialization
+;
+; :Dirs:
+;  ./
+;      Subroutines
+;
+; :Author:
+;   Ashkbiz Danehkar
+;
+; :Copyright:
+;   This library is released under a GNU General Public License.
+;
+; :Version:
+;   0.1.0
+;
+; :History:
+;     20/07/2014, A. Danehkar, Translated to IDL from FORTRAN 
+;                              in ALFA by R. Wessson
 ;- 
+  
 ; Initialize the sequence and generate random numbers:
   common random_seed, seed
   n=20

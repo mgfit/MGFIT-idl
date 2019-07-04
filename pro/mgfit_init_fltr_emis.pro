@@ -1,45 +1,69 @@
+; docformat = 'rst'
+
 function mgfit_init_fltr_emis, emissionlines, wavel_min, wavel_max
 ;+
-; NAME:
-;     mgfit_init_fltr_emis
-; PURPOSE:
-;     initialize and filter the emission line lists from the line_data
-;     within the specified wavelength range
-; EXPLANATION:
+;     This function initializes and filters the emission line lists 
+;     from the list of emission lines within the specified wavelength range
 ;
-; CALLING SEQUENCE:
-;     lines_selected=mgfit_init_fltr_emis(line_data, wavel_min, wavel_max)
+; :Returns:
+;     type=arrays of structures. This function returns the lits of 
+;                                selected emission lines in the arrays of structures 
+;                                { wavelength: 0.0, peak:0.0, sigma1:0.0, flux:0.0, 
+;                                  uncertainty:0.0, redshift:0.0, resolution:0.0, 
+;                                  blended:0, Ion:'', Multiplet:'', 
+;                                  LowerTerm:'', UpperTerm:'', g1:'', g2:''}
 ;
-; INPUTS:
-;     line_data - the emission line list read using read_stronglines(),
-;          read_deeplines(), and read_ultradeeplines(),
-;          line list array with the following structure
-;          { Wavelength:0.0, 
-;            Ion:'', 
-;            Multiplet:'', 
-;            LowerTerm:'', 
-;            UpperTerm:'', 
-;            g1:'', 
-;            g2:''}
+; :Params:
+;     emissionlines :     in, required, type=arrays of structures    
+;                         the emission lines given for the selection
+;                         stored in the arrays of structures 
+;                         { wavelength: 0.0, 
+;                           peak:0.0, 
+;                           sigma1:0.0, 
+;                           flux:0.0, 
+;                           uncertainty:0.0, 
+;                           redshift:0.0, 
+;                           resolution:0.0, 
+;                           blended:0, 
+;                           Ion:'', 
+;                           Multiplet:'', 
+;                           LowerTerm:'', 
+;                           UpperTerm:'', 
+;                           g1:'', 
+;                           g2:''}
+;                           
+;     wavel_min       :     in, required, type=float   
+;                           the minimum wavelength
+;     
+;     wavel_max        :    in, required, type=float   
+;                           the maximum wavelength
 ;
-; RETURN:  emissionlines_select,
-;          line list array with the following structure
-;          { wavelength: 0.0, 
-;            peak:0.0, 
-;            sigma1:0.0, 
-;            flux:0.0, 
-;            uncertainty:0.0, 
-;            redshift:0.0, 
-;            resolution:0.0, 
-;            blended:0, Ion:'', 
-;            Multiplet:'', 
-;            LowerTerm:'', 
-;            UpperTerm:'', 
-;            g1:'', 
-;            g2:''}
 ;
-; REVISION HISTORY:
-;     IDL by A. Danehkar, 20/07/2014
+; :Examples:
+;    For example::
+;
+;     IDL> emissionlines=mgfit_init_fltr_emis(strongline_data, wavel_min, wavel_max)
+;
+; :Categories:
+;   Emission, Initialization
+;
+; :Dirs:
+;  ./
+;      Main routines
+;
+; :Author:
+;   Ashkbiz Danehkar
+;
+; :Copyright:
+;   This library is released under a GNU General Public License.
+;
+; :Version:
+;   0.1.0
+;
+; :History:
+;     20/07/2014, A. Danehkar, IDL code written.
+;     
+;     15/01/2017, A. Danehkar, A few bugs fixed
 ;- 
   emissionlinestructure={wavelength: 0.0, peak:0.0, sigma1:0.0, flux:0.0, uncertainty:0.0, redshift:0.0, resolution:0.0, blended:0, Ion:'', Multiplet:'', LowerTerm:'', UpperTerm:'', g1:'', g2:''}
 
@@ -62,6 +86,8 @@ function mgfit_init_fltr_emis, emissionlines, wavel_min, wavel_max
     emissionlines_select[0:nlines-1].UpperTerm = emissionlines[linelocation1:linelocation2].UpperTerm
     emissionlines_select[0:nlines-1].g1 = emissionlines[linelocation1:linelocation2].g1
     emissionlines_select[0:nlines-1].g2 = emissionlines[linelocation1:linelocation2].g2
-  endif
+  endif else begin
+    emissionlines_select = 0
+  endelse
   return, emissionlines_select
 end

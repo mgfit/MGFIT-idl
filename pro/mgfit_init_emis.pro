@@ -1,37 +1,49 @@
+; docformat = 'rst'
+
 function mgfit_init_emis, wavel, flux
 ;+
-; NAME:
-;     mgfit_init_emis
-; PURPOSE:
-;     initialize the emission line list with the specified 
-;     wavelength array and flux array
-; EXPLANATION:
+;     This function initializes the emission line list with the specified 
+;     wavelength array and flux array.
 ;
-; CALLING SEQUENCE:
-;     lines=mgfit_init_emis(wavel, flux)
+; :Returns:
+;     type=arrays of structures. This function returns the emission line list 
+;                               stored in the arrays of structures 
+;                               { wavelength: 0.0, peak:0.0, sigma1:0.0, flux:0.0, 
+;                                 uncertainty:0.0, redshift:0.0, resolution:0.0, 
+;                                 blended:0, Ion:'', Multiplet:'', 
+;                                 LowerTerm:'', UpperTerm:'', g1:'', g2:''}
 ;
-; INPUTS:
-;     wavel - the wavelength array
-;     flux - the flux array
+; :Params:
+;     wavel  :      in, required, type=arrays
+;                   the wavelength array
+;            
+;     flux   :      in, required, type=arrays
+;                   the flux array
 ;
-; RETURN:  emissionlines,
-;          array with the following structure
-;          { wavelength: 0.0, 
-;            peak:0.0, 
-;            sigma1:0.0, 
-;            flux:0.0, 
-;            uncertainty:0.0, 
-;            redshift:0.0, 
-;            resolution:0.0, 
-;            blended:0, Ion:'', 
-;            Multiplet:'', 
-;            LowerTerm:'', 
-;            UpperTerm:'', 
-;            g1:'', 
-;            g2:''}
 ;
-; REVISION HISTORY:
-;     IDL by A. Danehkar, 20/07/2014
+; :Examples:
+;    For example::
+;
+;     IDL> emissionlines=mgfit_init_emis(wavel, flux)
+;
+; :Categories:
+;   Emission, Initialization
+;
+; :Dirs:
+;  ./
+;      Main routines
+;
+; :Author:
+;   Ashkbiz Danehkar
+;
+; :Copyright:
+;   This library is released under a GNU General Public License.
+;
+; :Version:
+;   0.1.0
+;
+; :History:
+;     20/07/2014, A. Danehkar,  IDL code written.
 ;- 
   emissionlinestructure={wavelength: 0.0, peak:0.0, sigma1:0.0, flux:0.0, uncertainty:0.0, redshift:0.0, resolution:0.0, blended:0, Ion:'', Multiplet:'', LowerTerm:'', UpperTerm:'', g1:'', g2:''}
 

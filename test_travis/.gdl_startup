@@ -1,0 +1,8 @@
+!PATH=!PATH + ':/home/appveyor/projects/mgfit-idl/pro/'
+!PATH=!PATH + ':/home/appveyor/projects/mgfit-idl/externals/astron/pro/'
+!PATH=!PATH + ':/home/appveyor/projects/mgfit-idl/externals/coyote/pro/'
+!PATH=!PATH + ':/home/appveyor/projects/mgfit-idl/externals/coyote/public/'
+!PATH=!PATH + ':/home/appveyor/projects/mgfit-idl/externals/mpfit/'
+!DIR='/home/appveyor/projects/mgfit-idl/'
+print, '%** Personal settings are loaded and active **';
+

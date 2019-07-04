@@ -1,60 +1,84 @@
+; docformat = 'rst'
+
 function mgfit_emis_err, syntheticspec, spectrumdata, emissionlines
 ;+
-; NAME:
-;     mgfit_emis_err
-; PURPOSE:
-;     estimate the uncertainties introduced by the best-fit model residuals 
-;     and the white noise quantified using the signal-dependent noise model 
-;     of least-squares Gaussian fitting (Lenz & Ayres 1992; 
+;     This function estimates the uncertainties introduced by the best-fit 
+;     model residuals and the white noise quantified using the signal-dependent 
+;     noise model of least-squares Gaussian fitting (Lenz & Ayres 1992; 
 ;     1992PASP..104.1104L) based on on the work of Landman, Roussel-Dupre, 
 ;     and Tanigawa (1982; 1982ApJ...261..732L).
-; EXPLANATION:
 ;
-; CALLING SEQUENCE:
-;     emissionlines=mgfit_emis_err(syntheticspec, spectrumdata, emissionlines)
+; :Returns:
+;    type=arrays of structures. This function returns the arrays of structures 
+;                              { wavelength: 0.0, peak:0.0, sigma1:0.0, flux:0.0, 
+;                                uncertainty:0.0, redshift:0.0, resolution:0.0, 
+;                                blended:0, Ion:'', Multiplet:'', 
+;                                LowerTerm:'', UpperTerm:'', g1:'', g2:''}
 ;
-; INPUTS:
-;     syntheticspec - the synthetic spectrum made by mgfit_synth_spec()
-;     spectrumdata  - the observed spectrum
-;     emissionlines - the emission lines specified for error estimation
-;          array with the following structure
-;          { wavelength: 0.0, 
-;            peak:0.0, 
-;            sigma1:0.0, 
-;            flux:0.0, 
-;            uncertainty:0.0, 
-;            redshift:0.0, 
-;            resolution:0.0, 
-;            blended:0, Ion:'', 
-;            Multiplet:'', 
-;            LowerTerm:'', 
-;            UpperTerm:'', 
-;            g1:'', 
-;            g2:''}
-; 
-; RETURN:  emissionlines
-;          array with the following structure
-;          { wavelength: 0.0, 
-;            peak:0.0, 
-;            sigma1:0.0, 
-;            flux:0.0, 
-;            uncertainty:0.0, 
-;            redshift:0.0, 
-;            resolution:0.0, 
-;            blended:0, Ion:'', 
-;            Multiplet:'', 
-;            LowerTerm:'', 
-;            UpperTerm:'', 
-;            g1:'', 
-;            g2:''}
+; :Params:
+;     syntheticspec :     in, required, type=arrays of structures
+;                         the synthetic spectrum made by mgfit_synth_spec() 
+;                         stored in the arrays of structures {wavelength: 0.0, flux:0.0, residual:0.0}
+;     
+;     spectrumdata  :     in, required, type=arrays of structures
+;                         the observed spectrum stored in the arrays 
+;                         of structures {wavelength: 0.0, flux:0.0, residual:0.0}
+;     
+;     emissionlines :     in, required, type=arrays of structures    
+;                         the emission lines specified for error estimation 
+;                         stored in the arrays of structures 
+;                         { wavelength: 0.0, 
+;                           peak:0.0, 
+;                           sigma1:0.0, 
+;                           flux:0.0, 
+;                           uncertainty:0.0, 
+;                           redshift:0.0, 
+;                           resolution:0.0, 
+;                           blended:0, 
+;                           Ion:'', 
+;                           Multiplet:'', 
+;                           LowerTerm:'', 
+;                           UpperTerm:'', 
+;                           g1:'', 
+;                           g2:''}
 ;
-; REVISION HISTORY:
-;     Algorithm inherited from ALFA written in FORTRAN by R. Wessson
-;     IDL code by A. Danehkar, 20/07/2014
-;     Performance optimized for IDL, A. Danehkar, 12/04/2015
-;     Added better performance in noise estimation, A. Danehkar, 20/08/2016
-;     Fixed small bugs, A. Danehkar, 22/10/2016 
-;- 
+; :Examples:
+;    For example::
+;
+;     IDL> emissionlines_section=mgfit_emis_err(syntheticspec_section, spec_section, emissionlines_section)
+;
+; :Categories:
+;   Emission, Uncertainty
+;
+; :Dirs:
+;  ./
+;      Main routines
+;
+; :Author:
+;   Ashkbiz Danehkar
+;
+; :Copyright:
+;   This library is released under a GNU General Public License.
+;
+; :Version:
+;   0.1.0
+;
+; :History:
+;     20/07/2014, A. Danehkar, Adopted from Algorithm used 
+;                              in the FORTRAN program ALFA by R. Wessson
+;     
+;     12/04/2015, A. Danehkar, Performance optimized for IDL.
+;     
+;     20/08/2016, A. Danehkar, Added better performance in noise estimation.
+;     
+;     22/10/2016, A. Danehkar,  Fixed small bugs.
+;     
+;     22/02/2016, A. Danehkar, Uncertainties estimation added.
+;     
+;     15/10/2016, A. Danehkar, Fixed small bugs.
+;     
+;     21/06/2017, A. Danehkar, Some modifications.
+;-
   temp=size(spectrumdata,/DIMENSIONS)
   speclength=temp[0]
   residuals = fltarr(speclength)
@@ -66,7 +90,7 @@ function mgfit_emis_err, syntheticspec, spectrumdata, emissionlines
   
   residuals=spectrumdata.flux-syntheticspec.flux
   
-  strong_line=min(where(emissionlines.flux eq max(emissionlines.flux))) 
+  strong_line=min(where(emissionlines.peak eq max(emissionlines.peak))) 
   resolution_initial=emissionlines[strong_line].resolution
   
   sigma1=emissionlines[strong_line].wavelength/resolution_initial
@@ -80,18 +104,27 @@ function mgfit_emis_err, syntheticspec, spectrumdata, emissionlines
   residuals_num=2*residuals_num1
   residuals_num2=long(3./4.*residuals_num)
   
-  for i=residuals_num1,speclength-residuals_num1-1 do begin
-    residuals_select=abs(residuals[i-residuals_num1:i+residuals_num1-1])
+  if residuals_num lt speclength then begin
+    for i=residuals_num1,speclength-residuals_num1-1 do begin
+      residuals_select=abs(residuals[i-residuals_num1:i+residuals_num1-1])
+      residuals_sort=sort(residuals_select)
+      residuals_select=residuals_select[residuals_sort]
+      rms_noise=(total(residuals_select[0:residuals_num2-1]^2)/float(residuals_num2))^0.5
+      spectrumdata[i].residual=rms_noise
+    endfor
+    spectrumdata[0:residuals_num-1].residual=spectrumdata[residuals_num].residual
+  endif else begin
+    residuals_select=abs(residuals[0:speclength-1])
     residuals_sort=sort(residuals_select)
     residuals_select=residuals_select[residuals_sort]
-    rms_noise=(total(residuals_select[0:residuals_num2-1]^2)/float(residuals_num2))^0.5
-    spectrumdata[i].residual=rms_noise
-  endfor
+    rms_noise=(total(residuals_select[0:speclength-1]^2)/float(speclength))^0.5
+    spectrumdata[*].residual=rms_noise
+  endelse
   
-  spectrumdata[0:residuals_num-1].residual=spectrumdata[residuals_num].residual
   temp=size(spectrumdata.residual,/DIMENSIONS)
   residual_size=temp[0]
-  spectrumdata[residual_size-residuals_num-1:residual_size-1].residual=spectrumdata(residual_size-residuals_num-2).residual
+  spectrumdata[residual_size-residuals_num-1:residual_size-1].residual=spectrumdata[residual_size-residuals_num-2].residual
+  ;spectrumdata[residual_size-residuals_num-1:residual_size-1].residual=spectrumdata[residual_size-residuals_num-0].residual
   
   temp=size(emissionlines,/DIMENSIONS)
   if size(temp,/DIMENSIONS) gt 1 then begin

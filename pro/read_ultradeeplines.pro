@@ -1,32 +1,52 @@
+; docformat = 'rst'
+
 function read_ultradeeplines, fits_file
 ;+
-; NAME:
-;     read_deeplines
-; PURPOSE:
-;     read the list of ultra deep lines from the 4th binary table extension
-;     of the FITS data file (../data/linedata.fits)
-; EXPLANATION:
+;     This function reads the list of ultra deep lines 
+;     from the 4rd binary table extension
+;     of the FITS data file (../data/linedata.fits). 
+;     This function uses the routine ftab_ext from 
+;     IDL Astronomy User's library. 
+;  
+; :Returns:
+;     type=arrays of structures. This function returns the ultra deep line list
+;                               in the arrays of structures 
+;                               { Wavelength:0.0, 
+;                                 Ion:'', 
+;                                 Multiplet:'', 
+;                                 LowerTerm:'', 
+;                                 UpperTerm:'', 
+;                                 g1:'', 
+;                                 g2:''}
 ;
-; CALLING SEQUENCE:
-;     ultradeepline_data = read_ultradeeplines(fits_file)
-;     print, ultradeepline_data.Wavelength, ultradeepline_data.Ion
+; :Params:          
+;     fits_file  :      in, required, type=string
+;                       the FITS file name ("../data/linedata.fits")
+;  
+; :Examples:
+;    For example::
 ;
-; INPUTS:
-;     fits_file - the MGFIT line data (../data/linedata.fits)
-; RETURN:  ultradeepline_data
-;          { Wavelength:0.0, 
-;            Ion:'', 
-;            Multiplet:'', 
-;            LowerTerm:'', 
-;            UpperTerm:'', 
-;            g1:'', 
-;            g2:''}
+;     IDL> ultradeepline_data = read_ultradeeplines(fits_file)
+;     IDL> print, ultradeepline_data.Wavelength, ultradeepline_data.Ion
 ;
-; REQUIRED EXTERNAL LIBRARY:
-;     ftab_ext from IDL Astronomy User's library (../externals/astron/pro)
+; :Categories:
+;   Lines
 ;
-; REVISION HISTORY:
-;     IDL code by A. Danehkar, 20/07/2014
+; :Dirs:
+;  ./
+;      Main routines
+;
+; :Author:
+;   Ashkbiz Danehkar
+;
+; :Copyright:
+;   This library is released under a GNU General Public License.
+;
+; :Version:
+;   0.1.0
+;
+; :History:
+;     20/07/2014, A. Danehkar, IDL code written.
 ;- 
   line_template={Wavelength: 0.0, Ion:'', Multiplet:'', LowerTerm:'', UpperTerm:'', g1:'', g2:''}
   

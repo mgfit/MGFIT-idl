@@ -1,26 +1,46 @@
+; docformat = 'rst'
+
 function read_skylines, fits_file
 ;+
-; NAME:
-;     read_deeplines
-; PURPOSE:
-;     read the list of sky lines from the 5th binary table extension
-;     of the FITS data file (../data/linedata.fits)
-; EXPLANATION:
+;     This function reads the list of sky lines 
+;     from the 3rd binary table extension
+;     of the FITS data file (../data/linedata.fits). 
+;     This function uses the routine ftab_ext from 
+;     IDL Astronomy User's library. 
+;  
+; :Returns:
+;     type=arrays of structures. This function returns the sky line list
+;                               in the arrays of structures 
+;                               { Wavelength:0.0}
 ;
-; CALLING SEQUENCE:
-;     skyline_data = read_skylines(fits_file)
-;     print, skyline_data.Wavelength
+; :Params:          
+;     fits_file  :      in, required, type=string
+;                       the FITS file name ("../data/linedata.fits")
+;  
+; :Examples:
+;    For example::
 ;
-; INPUTS:
-;     fits_file - the MGFIT line data (../data/linedata.fits)
-; RETURN:  skyline_data
-;          { Wavelength:0.0}
+;     IDL> skyline_data = read_skylines(fits_file)
+;     IDL> print, skyline_data.Wavelength
 ;
-; REQUIRED EXTERNAL LIBRARY:
-;     ftab_ext from IDL Astronomy User's library (../externals/astron/pro)
+; :Categories:
+;   Lines
 ;
-; REVISION HISTORY:
-;     IDL code by A. Danehkar, 20/07/2014
+; :Dirs:
+;  ./
+;      Main routines
+;
+; :Author:
+;   Ashkbiz Danehkar
+;
+; :Copyright:
+;   This library is released under a GNU General Public License.
+;
+; :Version:
+;   0.1.0
+;
+; :History:
+;     20/07/2014, A. Danehkar, IDL code written.
 ;- 
   sky_template={Wavelength: 0.0}
   

@@ -1,33 +1,60 @@
+; docformat = 'rst'
+
 function mpfit_whitenoise, spectrumdata
 ;+
-; NAME:
-;     mpfit_whitenoise
-; PURPOSE:
-;     extract the white noise from the spectrum
-; EXPLANATION:
+;     This function extracts the white noise from the spectrum.
+;  
+; :Returns:
+;     type=arrays of structures. This function returns the white noise
+;                               in the arrays of structures 
+;                               {wavelength: 0.0, flux:0.0, residual:0.0}
 ;
-; CALLING SEQUENCE:
-;     whitenoise=mpfit_whitenoise(spectrumdata)
+; :Params:          
+;     lines  :      in, required, type=arrays of structures
+;                   the whitenoise stored in
+;                   the arrays of structures
+;                   { wavelength: 0.0, flux:0.0, residual:0.0}
+;  
+;     spectrumdata  :   in, required, type=arrays of structures
+;                       the input spectrum stored in
+;                       the arrays of structures
+;                       { wavelength: 0.0, flux:0.0, residual:0.0}
+;  
+; :Examples:
+;    For example::
 ;
-; INPUTS:
-;     spectrumdata - the spectrumdata
-;          { wavelength: 0.0, 
-;            flux:0.0, 
-;            residual:0.0}
-; RETURN:  whitenoise
-;          { wavelength: 0.0, 
-;            flux:0.0, 
-;            residual:0.0}
+;     IDL> specdata=mpfit_whitenoise(specdata)
 ;
-; REVISION HISTORY:
-;     IDL by A. Danehkar, 20/07/2014
+; :Categories:
+;   Spectrum, Noise, Uncertainty
+;
+; :Dirs:
+;  ./
+;      Main routines
+;
+; :Author:
+;   Ashkbiz Danehkar
+;
+; :Copyright:
+;   This library is released under a GNU General Public License.
+;
+; :Version:
+;   0.1.0
+;
+; :History:
+;     20/07/2014, A. Danehkar, Translated to IDL from FORTRAN 
+;                 in ALFA by R. Wessson
+;     
+;     21/11/2017, A. Danehkar, Some modifications.
 ;- 
   spectrumstructure={wavelength: 0.0, flux:0.0, residual:0.0}
   temp=size(spectrumdata,/DIMENSIONS)
   speclength=temp[0]
   whitenoise =replicate(spectrumstructure, speclength)
-  residuals_num=50
-  residuals_num2=10
+  ;residuals_num=50
+  ;residuals_num2=10
+  residuals_num=10
+  residuals_num2=5
   specsample=fltarr(2*residuals_num+1)
   whitenoise[*].wavelength = spectrumdata[*].wavelength
   whitenoise[*].flux = spectrumdata[*].flux
