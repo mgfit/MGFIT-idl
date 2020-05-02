@@ -62,7 +62,7 @@ function mgfit_fltr_emis, emissionlines, wavel_min, wavel_max
 ; :History:
 ;     20/07/2014, A. Danehkar,  IDL code written.
 ;-
-  emissionlinestructure={wavelength: 0.0, peak:0.0, sigma1:0.0, flux:0.0, uncertainty:0.0, redshift:0.0, resolution:0.0, blended:0, Ion:'', Multiplet:'', LowerTerm:'', UpperTerm:'', g1:'', g2:''}
+  emissionlinestructure={wavelength: 0.0, peak:0.0, sigma1:0.0, flux:0.0, continuum:0.0, uncertainty:0.0, redshift:0.0, resolution:0.0, blended:0, Ion:'', Multiplet:'', LowerTerm:'', UpperTerm:'', g1:'', g2:''}
 
   temp=size(emissionlines,/DIMENSIONS)
   speclength=temp[0]

@@ -39,8 +39,14 @@ function mgfit_mutation1
     value=1.*random
   endif 
   if (random ge 0.95) then begin
-    value=2+(1.*(random-1))
+    value=2.+(1.*(random-1))
   endif 
+;  if (random le 0.05) then begin
+;    value=1.*random
+;  endif 
+;  if (random ge 0.95) then begin
+;    value=2+(1.*(random-1))
+;  endif 
 ;  if (random le 0.02) then begin
 ;    value=1.*random
 ;  endif 

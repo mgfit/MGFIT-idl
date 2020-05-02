@@ -1,6 +1,6 @@
 ; docformat = 'rst'
 
-function mgfit_emis_err, syntheticspec, spectrumdata, emissionlines
+function mgfit_emis_err, syntheticspec, spectrumdata, emissionlines, redshift
 ;+
 ;     This function estimates the uncertainties introduced by the best-fit 
 ;     model residuals and the white noise quantified using the signal-dependent 
@@ -93,11 +93,14 @@ function mgfit_emis_err, syntheticspec, spectrumdata, emissionlines
   strong_line=min(where(emissionlines.peak eq max(emissionlines.peak))) 
   resolution_initial=emissionlines[strong_line].resolution
   
-  sigma1=emissionlines[strong_line].wavelength/resolution_initial
+  sigma1=redshift*emissionlines[strong_line].wavelength/resolution_initial
   fwhm=2*sqrt(2*alog(2))*emissionlines[strong_line].sigma1
 
   w_helf=2*sqrt(2*alog(2))
-  profile_loc=where(spectrumdata.wavelength ge (emissionlines[strong_line].wavelength-w_helf*fwhm) and spectrumdata.wavelength le (emissionlines[strong_line].wavelength+w_helf*fwhm) )
+  profile_loc=where(spectrumdata.wavelength ge (redshift*emissionlines[strong_line].wavelength-w_helf*fwhm) and spectrumdata.wavelength le (redshift*emissionlines[strong_line].wavelength+w_helf*fwhm) )
+  if profile_loc[0] eq -1 then begin
+    return, emissionlines ; cannot find lines!
+  endif
   temp=size(profile_loc,/DIMENSIONS)
   residuals_num=temp[0]
   residuals_num1=long(residuals_num/2)
@@ -134,7 +137,10 @@ function mgfit_emis_err, syntheticspec, spectrumdata, emissionlines
   endelse
   
   for i=0,fit_uncertainty_size-1 do begin
-    waveindex=minloc_idl(abs(spectrumdata.wavelength-emissionlines[i].wavelength),first=1)
+    waveindex=minloc_idl(abs(spectrumdata.wavelength-redshift*emissionlines[i].wavelength),first=1)
+    ;temp=size(spectrumdata.wavelength,/DIMENSIONS)
+    ;size1=temp[0]
+    ;if waveindex ge size1 then waveindex=size1-1
     ;if (spectrumdata[waveindex].residual ne 0.0) then begin
     if (emissionlines[i].peak ne 0.0) and (emissionlines[i].resolution ne 0.0) then begin
       ; Equation (1) in Lenz & Ayres 1992PASP..104.1104L 
@@ -142,10 +148,10 @@ function mgfit_emis_err, syntheticspec, spectrumdata, emissionlines
       ; (2) Hubble Space Telescope (HST)
       ; (3) International Ultraviolet Explorer (IUE)
       C_x= 0.67 ; C_x(FTS)=0.70, C_x(HST)=0.63, C_x(IUE)=0.64, C_x(all)=0.67
-      emissionlines[i].sigma1=emissionlines[i].wavelength/emissionlines[i].resolution
+      emissionlines[i].sigma1=redshift*emissionlines[i].wavelength/emissionlines[i].resolution
       fwhm=2*sqrt(2*alog(2))*emissionlines[i].sigma1
       rms_noise=spectrumdata[waveindex].residual
-      delta_wavelength=abs(spectrumdata[waveindex+1].wavelength - spectrumdata[waveindex].wavelength)
+      delta_wavelength=abs(spectrumdata[waveindex].wavelength - spectrumdata[waveindex-1].wavelength)
       peak_snr=emissionlines[i].peak/rms_noise
       line_snr=C_x*(fwhm/delta_wavelength)^0.5*peak_snr
       if line_snr ne 0 then begin

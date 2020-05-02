@@ -89,3 +89,8 @@ Installation in GDL
 
 * This package requires GDL version 0.9.8 or later.
 
+Documentation
+=============
+
+For more information on how to use the API functions from the idl_emcee libray, please read the `API Documentation  <https://mgfit.github.io/MGFIT-idl/doc>`_ published on `mgfit.github.io/idl_emcee <https://mgfit.github.io/MGFIT-idl>`_.
+

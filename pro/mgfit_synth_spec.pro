@@ -1,6 +1,6 @@
 ; docformat = 'rst'
 
-function mgfit_synth_spec, lines, spec
+function mgfit_synth_spec, lines, spec, continuum=continuum
 ;+
 ;     This function makes a spectrum from given lines. 
 ;  
@@ -17,6 +17,7 @@ function mgfit_synth_spec, lines, spec
 ;                     peak:0.0, 
 ;                     sigma1:0.0, 
 ;                     flux:0.0, 
+;                     continuum:0.0, 
 ;                     uncertainty:0.0, 
 ;                     redshift:0.0, 
 ;                     resolution:0.0, 
@@ -72,6 +73,9 @@ function mgfit_synth_spec, lines, spec
     if temp[0] gt 0 and lines[i].sigma1 ne 0 then begin
       ;spec[location].flux = spec[location].flux + lines[i].peak*exp((-(spec[location].wavelength-lines[i].redshift*lines[i].wavelength)^2)/(2*(lines[i].sigma1)^2))
       spec[location].flux = spec[location].flux + lines[i].peak*exp((-(spec[location].wavelength-lines[i].redshift*lines[i].wavelength)^2.)/(2.*(lines[i].wavelength/lines[i].resolution)^2.))
+      if keyword_set(continuum) then begin
+        spec[location].flux = spec[location].flux +  lines[i].continuum
+      endif
     endif
   endfor
   return, spec

@@ -44,8 +44,17 @@ function mgfit_contin, spectrumdata
   temp=size(spectrumdata,/DIMENSIONS)
   speclength=temp[0]
   continuum =replicate(spectrumstructure, speclength)
-  residuals_num=long(50)
-  residuals_num2=long(25)
+  ;residuals_num=long(50)
+  ;residuals_num2=long(25)
+  ;residuals_num=long(50)
+  if speclength ge 10 then begin
+    spec_len=10 ;floor(speclength/10.)*10
+    if spec_len ge 50 then spec_len=50
+  endif else begin
+    spec_len=speclength
+  endelse
+  residuals_num=long(spec_len)
+  residuals_num2=long(5)
   specsample=fltarr(2*residuals_num+1)
   continuum[*].wavelength = spectrumdata[*].wavelength
   continuum[*].flux = 0.0
@@ -57,9 +66,14 @@ function mgfit_contin, spectrumdata
     endfor
     sortsample=sort(specsample)
     specsample=specsample[sortsample]
-    continuum[i].flux = specsample[residuals_num2]
+    continuum[i].flux = specsample[0]
   endfor
   continuum[0:residuals_num-1].flux = continuum[residuals_num].flux
   continuum[speclength-residuals_num-1:speclength-1].flux = continuum[speclength-residuals_num-2].flux
+  ;plot,spectrumdata.wavelength,spectrumdata.flux
+  ;plot,continuum.wavelength,continuum.flux
+  poly_a = poly_fit(continuum.wavelength , continuum.flux , 1)
+  continuum.flux = poly_a[0] + poly_a[1]*continuum.wavelength ; + poly_a[2]*continuum.wavelength^2
+  ;plot,continuum.wavelength,continuum.flux
   return, continuum
 end

@@ -1,6 +1,6 @@
 ; docformat = 'rst'
 
-function mgfit_init_fltr_emis, emissionlines, wavel_min, wavel_max
+function mgfit_init_fltr_emis, emissionlines, wavel_min, wavel_max, redshift
 ;+
 ;     This function initializes and filters the emission line lists 
 ;     from the list of emission lines within the specified wavelength range
@@ -9,8 +9,8 @@ function mgfit_init_fltr_emis, emissionlines, wavel_min, wavel_max
 ;     type=arrays of structures. This function returns the lits of 
 ;                                selected emission lines in the arrays of structures 
 ;                                { wavelength: 0.0, peak:0.0, sigma1:0.0, flux:0.0, 
-;                                  uncertainty:0.0, redshift:0.0, resolution:0.0, 
-;                                  blended:0, Ion:'', Multiplet:'', 
+;                                  continuum:0.0, uncertainty:0.0, redshift:0.0, 
+;                                  resolution:0.0, blended:0, Ion:'', Multiplet:'', 
 ;                                  LowerTerm:'', UpperTerm:'', g1:'', g2:''}
 ;
 ; :Params:
@@ -21,6 +21,7 @@ function mgfit_init_fltr_emis, emissionlines, wavel_min, wavel_max
 ;                           peak:0.0, 
 ;                           sigma1:0.0, 
 ;                           flux:0.0, 
+;                           continuum:0.0, 
 ;                           uncertainty:0.0, 
 ;                           redshift:0.0, 
 ;                           resolution:0.0, 
@@ -65,13 +66,13 @@ function mgfit_init_fltr_emis, emissionlines, wavel_min, wavel_max
 ;     
 ;     15/01/2017, A. Danehkar, A few bugs fixed
 ;- 
-  emissionlinestructure={wavelength: 0.0, peak:0.0, sigma1:0.0, flux:0.0, uncertainty:0.0, redshift:0.0, resolution:0.0, blended:0, Ion:'', Multiplet:'', LowerTerm:'', UpperTerm:'', g1:'', g2:''}
+  emissionlinestructure={wavelength: 0.0, peak:0.0, sigma1:0.0, flux:0.0, continuum:0.0, uncertainty:0.0, redshift:0.0, resolution:0.0, blended:0, Ion:'', Multiplet:'', LowerTerm:'', UpperTerm:'', g1:'', g2:''}
 
   temp=size(emissionlines,/DIMENSIONS)
   speclength=temp[0]
-  linelocation01 = where(emissionlines.wavelength ge wavel_min)
+  linelocation01 = where(redshift*emissionlines.wavelength ge wavel_min)
   linelocation1=min(linelocation01)
-  linelocation02 = where(emissionlines.wavelength le wavel_max)
+  linelocation02 = where(redshift*emissionlines.wavelength le wavel_max)
   linelocation2=max(linelocation02)
   nlines = linelocation2 - linelocation1 + 1
 
