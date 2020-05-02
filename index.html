@@ -1,1 +1,131 @@
-My GitHub Page
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="UTF-8">
+    <title>MGFIT-idl - IDL/GDL Library for Least-Squares Minimization Genetic Algorithm Fitting</title>
+    <meta name="description" content="MGFIT-idl - Ab Interactive Data Language (IDL)/GNU Data Language (GDL) programs developed to fit multiple Gaussian functions to a list of emission - maintained by Ashkbiz Danehkar" />
+    <meta name="keywords" content="MGFIT-idl, IDL, MPFIT, MCMC, EMCEE, Interactive Data Language, GNU Data Language, programs, Ashkbiz, Danehkar, Ashkbiz Danehkar" />
+    <meta name="robots" content="index, follow" />
+    <meta name="author" content="Ashkbiz Danehkar" />
+    <meta name="google-site-verification" content="SjR3aiGoWoYNdlGWoKdppvVNok1R1ppL1MnQqUIR8pw" />
+    <meta name="msvalidate.01" content="9FBB288F1180F3C2A55231499D2CE4E0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="stylesheets/normalize.css" media="screen">
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
+    <link type="application/rss+xml" rel="sitemap"  href="//mcfit.github.io/idl_emcee/sitemap.xml" />
+  </head>
+  <body>
+    <section class="page-header">
+      <h1 class="project-name">MGFIT-idl</h1>
+      <h2 class="project-tagline">MGFIT-idl - IDL/GDL Library for Least-Squares Minimization Genetic Algorithm Fitting</h2>
+      <a href="https://github.com/mgfit/MGFIT-idl" class="btn">View on GitHub</a>
+      <a href="https://github.com/mgfit/MGFIT-idl/zipball/master" class="btn">Download .zip</a>
+      <a href="https://github.com/mgfit/MGFIT-idl/tarball/master" class="btn">Download .tar.gz</a>
+      <a href="doc/" class="btn">Documentation</a>
+    </section>
+
+    <section class="main-content">
+      <h1>
+<a id="idl-emcee" class="anchor" href="#idl-emcee" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>idl_emcee</h1>
+
+<p><strong>MGFIT-idl</strong> - IDL/GDL Library for Least-Squares Minimization Genetic Algorithm Fitting</p>
+
+</div>
+<a class="reference external image-reference" href="https://travis-ci.org/mgfit/MGFIT-idl"><img alt="Build Status" src="https://travis-ci.org/mcfit/idl_emcee.svg?branch=master" /></a>
+<a class="reference external image-reference" href="https://ci.appveyor.com/project/danehkar/mgfit-idl"><img alt="Build Status" src="https://ci.appveyor.com/api/projects/status/52mh7p2qfa2qnu30?svg=true" /></a>
+<a class="reference external image-reference" href="http://mybinder.org/repo/mgfit/mgfit-idl"><img alt="Binder" src="https://mybinder.org/badge.svg" /></a>
+<a class="reference external image-reference" href="https://github.com/mgfit/mgfit-idl/blob/master/LICENSE"><img alt="GitHub license" src="https://img.shields.io/badge/license-GPL-blue.svg" /></a>
+
+<h2>Description</h2>
+<p>The <strong>MGFIT</strong> is an <a class="reference external" href="http://www.harrisgeospatial.com/ProductsandSolutions/GeospatialProducts/IDL.aspx">Interactive Data Language</a> (IDL)/<a class="reference external" href="http://gnudatalanguage.sourceforge.net/">GNU Data Language</a> (GDL) Library developed to fit multiple Gaussian functions to a list of emission (or absorption) lines using a least-squares minimization technique and a random walk method in three-dimensional locations of the specified lines, namely line peak, line width, and wavelength shift. It uses the <a class="reference external" href="http://cow.physics.wisc.edu/~craigm/idl/cmpfit.html">MPFIT</a> IDL Library (<a class="reference external" href="http://adsabs.harvard.edu/abs/2012ascl.soft08019M">MINPACK-1 Least Squares Fitting</a>; <a class="reference external" href="http://adsabs.harvard.edu/abs/2009ASPC..411..251M">Markwardt 2009</a>), which performs Levenberg-Marquardt least-squares minimization, to estimate the seed values required for initializing the three-dimensional coordination of each line in the first iteration. It then uses a random walk method optimized using a genetic algorithm originally evolved from the early version of the Fortran program <a class="reference external" href="http://adsabs.harvard.edu/abs/2015ascl.soft12005W">ALFA</a> (<a class="reference external" href="https://github.com/rwesson/ALFA">Automated Line Fitting Algorithm</a>; <a class="reference external" href="http://adsabs.harvard.edu/abs/2016MNRAS.456.3774W">Wesson 2016</a>) to determine the best fitting values of the specified lines. The continuum curve is determined and subtracted before the line identification and flux measurements. It quantifies the white noise of the spectrum, which is then utilized to estimate uncertainties of fitted lines using the signal-dependent noise model of least-squares Gaussian fitting (<a class="reference external" href="http://adsabs.harvard.edu/abs/1992PASP..104.1104L">Lenz &amp; Ayres 1992</a>) built on the work of <a class="reference external" href="http://adsabs.harvard.edu/abs/1982ApJ...261..732L">Landman, Roussel-Dupre, and Tanigawa (1982)</a>.</p>
+</div>
+<div class="section" id="installation">
+<h2>Installation</h2>
+<div class="section" id="dependent-idl-packages">
+<h2>Dependent IDL Packages</h2>
+<ul>
+<li><p class="first">This package requires the following packages:</p>
+<blockquote>
+<ul class="simple">
+<li><a class="reference external" href="https://idlastro.gsfc.nasa.gov/homepage.html">The IDL Astronomy User's Library</a></li>
+<li><a class="reference external" href="https://github.com/idl-coyote/coyote">The Coyote IDL Library</a></li>
+<li><a class="reference external" href="http://cow.physics.wisc.edu/~craigm/idl/idl.html">The MPFIT IDL Library</a></li>
+</ul>
+</blockquote>
+</li>
+<li><p class="first">To get this package with all the dependent packages, you can simply use <tt class="docutils literal">git</tt> command as follows:</p>
+<pre class="literal-block">
+git clone --recursive https://github.com/mgfit/MGFIT-idl
+</pre>
+</li>
+</ul>
+</div>
+<div class="section" id="installation-in-idl">
+<h3>Installation in IDL</h3>
+<ul class="simple">
+<li>To install the <strong>MGFIT</strong> IDL library in the Interactive Data Language (IDL), you need to add the path of this package directory to your IDL path. For more information about the path management in IDL, read <a class="reference external" href="https://www.harrisgeospatial.com/Support/Self-Help-Tools/Help-Articles/Help-Articles-Detail/ArtMID/10220/ArticleID/16156/Quick-tips-for-customizing-your-IDL-program-search-path">the tips for customizing IDL program path</a> provided by Harris Geospatial Solutions or <a class="reference external" href="http://www.idlcoyote.com/code_tips/installcoyote.php">the IDL library installation note</a> by David Fanning in the Coyote IDL Library.</li>
+<li>This package requires IDL version 7.1 or later.</li>
+</ul>
+</div>
+<div class="section" id="installation-in-gdl">
+<h3>Installation in GDL</h3>
+<ul>
+<li><p class="first">You can install the GNU Data Language (GDL) if you do not have it on your machine:</p>
+<blockquote>
+<ul>
+<li><p class="first">Linux (Fedora):</p>
+<pre class="literal-block">
+sudo dnf install gdl
+</pre>
+</li>
+<li><p class="first">Linux (Ubuntu):</p>
+<pre class="literal-block">
+sudo apt-get install gnudatalanguage
+</pre>
+</li>
+<li><p class="first">OS X:</p>
+<pre class="literal-block">
+brew install gnudatalanguage
+</pre>
+</li>
+<li><p class="first">Windows: You can use the <a class="reference external" href="https://sourceforge.net/projects/gnudatalanguage-win32/">GNU Data Language for Win32</a> (Unofficial Version) or you can compile the <a class="reference external" href="https://github.com/gnudatalanguage/gdl">GitHub source</a> using Visual Studio 2015 as shown in <a class="reference external" href="https://github.com/gnudatalanguage/gdl/blob/master/appveyor.yml">appveyor.yml</a>.</p>
+</li>
+</ul>
+</blockquote>
+</li>
+<li><p class="first">To install the <strong>MGFIT</strong> library in GDL, you need to add the path of this package directory to your <tt class="docutils literal">.gdl_startup</tt> file in your home directory:</p>
+<pre class="literal-block">
+!PATH=!PATH + ':/home/MGFIT-idl/pro/'
+!PATH=!PATH + ':/home/MGFIT-idl/externals/astron/pro/'
+!PATH=!PATH + ':/home/MGFIT-idl/externals/coyote/pro/'
+!PATH=!PATH + ':/home/MGFIT-idl/externals/coyote/public/'
+!PATH=!PATH + ':/home/MGFIT-idl/externals/mpfit/'
+</pre>
+<p>You may also need to set <tt class="docutils literal">GDL_STARTUP</tt> if you have not done in <tt class="docutils literal">.bashrc</tt> (bash):</p>
+<pre class="literal-block">
+export GDL_STARTUP=~/.gdl_startup
+</pre>
+<p>or in <tt class="docutils literal">.tcshrc</tt> (cshrc):</p>
+<pre class="literal-block">
+setenv GDL_STARTUP ~/.gdl_startup
+</pre>
+</li>
+<li><p class="first">This package requires GDL version 0.9.8 or later.</p>
+</li>
+</ul>
+</div>
+</div>
+
+      <footer class="site-footer">
+        <span class="site-footer-owner"><a href="https://github.com/mgfit/MGFIT-idl">MGFIT-idl</a> is maintained by <a href="https://github.com/danehkar">Ashkbiz Danehkar</a>.</span>
+
+        <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the <a href="https://github.com/jasonlong/cayman-theme">Cayman theme</a> by <a href="https://twitter.com/jasonlong">Jason Long</a>.</span>
+      </footer>
+
+    </section>
+
+  
+  </body>
+</html>

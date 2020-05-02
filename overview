@@ -1,0 +1,66 @@
+.. title:: MGFIT-idl Overview
+
+`MGFIT-idl <https://mgfit.github.io/MGFIT-idl>` is an `Interactive Data Language <http://www.harrisgeospatial.com/ProductsandSolutions/GeospatialProducts/IDL.aspx>` (IDL)/`GNU Data Language <http://gnudatalanguage.sourceforge.net/>` (GDL) Library developed to fit multiple Gaussian functions to a list of emission (or absorption) lines using a least-squares minimization technique and a random walk method in three-dimensional locations of the specified lines, namely line peak, line width, and wavelength shift. It uses the `MPFIT <http://cow.physics.wisc.edu/~craigm/idl/cmpfit.html>` IDL Library (`MINPACK-1 Least Squares Fitting <http://adsabs.harvard.edu/abs/2012ascl.soft08019M>`; `Markwardt 2009 <http://adsabs.harvard.edu/abs/2009ASPC..411..251M>`), which performs Levenberg-Marquardt least-squares minimization, to estimate the seed values required for initializing the three-dimensional coordination of each line in the first iteration. It then uses a random walk method optimized using a genetic algorithm originally evolved from the early version of the Fortran program `ALFA <http://adsabs.harvard.edu/abs/2015ascl.soft12005W>` (`Automated Line Fitting Algorithm <https://github.com/rwesson/ALFA>`; `Wesson 2016 <http://adsabs.harvard.edu/abs/2016MNRAS.456.3774W>`) to determine the best fitting values of the specified lines. The continuum curve is determined and subtracted before the line identification and flux measurements. It quantifies the white noise of the spectrum, which is then utilized to estimate uncertainties of fitted lines using the signal-dependent noise model of least-squares Gaussian fitting (`Lenz & Ayres 1992 <http://adsabs.harvard.edu/abs/1992PASP..104.1104L>`) built on the work of `Landman, Roussel-Dupre, and Tanigawa (1982) <http://adsabs.harvard.edu/abs/1982ApJ...261..732L>`.
+
+
+Dependencies
+------------
+
+* This package requires the following packages:
+
+    - `The IDL Astronomy User's Library <https://idlastro.gsfc.nasa.gov/homepage.html>`
+    
+* To get this package with all the dependent packages, you can simply use ``git`` command as follows::
+
+        git clone --recursive https://github.com/mgfit/MGFIT-idl.git
+
+
+GDL Installation
+----------------
+
+*  The GNU Data Language (GDL) can be installed on
+
+    - Linux (Fedora)::
+
+        sudo dnf install gdl
+    
+    - Linux (Ubuntu)::
+    
+        sudo apt-get install gnudatalanguage
+    
+    - OS X (`brew <https://brew.sh/>`)::
+
+        brew tap brewsci/science
+        brew install gnudatalanguage
+
+    - OS X (`macports <https://www.macports.org/>`)::
+
+        sudo port selfupdate
+        sudo port upgrade libtool
+        sudo port install gnudatalanguage
+    
+    - Windows: using the `GNU Data Language for Win32 <https://sourceforge.net/projects/gnudatalanguage-win32/>` (Unofficial Version) or compiling the `GitHub source <https://github.com/gnudatalanguage/gdl>` with Visual Studio 2015 as seen in `appveyor.yml <https://github.com/gnudatalanguage/gdl/blob/master/appveyor.yml>`.
+
+
+* To setup `MGFIT-idl <https://mgfit.github.io/MGFIT-idl>` in GDL, add its path to ``.gdl_startup`` in the home directory::
+
+    !PATH=!PATH + ':/home/MGFIT-idl/pro/'
+
+  Set ``GDL_STARTUP`` in ``.bashrc`` (bash)::
+
+    export GDL_STARTUP=~/.gdl_startup
+
+  or in ``.tcshrc`` (cshrc)::
+
+    setenv GDL_STARTUP ~/.gdl_startup
+
+* This package needs GDL version 0.9.8 or later.
+
+IDL Installation
+----------------
+
+* To install `MGFIT-idl <https://mgfit.github.io/MGFIT-idl>` in IDL, add its path to your IDL path. For more information about the path management in IDL, read `the IDL path management <https://www.harrisgeospatial.com/Support/Self-Help-Tools/Help-Articles/Help-Articles-Detail/ArtMID/10220/ArticleID/16156/Quick-tips-for-customizing-your-IDL-program-search-path>` by Harris Geospatial or `the IDL library installation  <http://www.idlcoyote.com/code_tips/installcoyote.php>` by David Fanning. 
+
+* This package needs IDL version 7.1 or later. 
+
+

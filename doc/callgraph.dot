@@ -1,0 +1,22 @@
+digraph callgraph {
+  page="8.5,11"
+  node[fontsize=8,color=gray,fontcolor=grey]
+  edge[color=gray]
+  minloc_idl[fontcolor=black,shape=plaintext]
+  mgfit_init_emis[fontcolor=black,shape=plaintext]
+  mgfit_init_fltr_emis[fontcolor=black,shape=plaintext]
+  mgfit_synth_spec[fontcolor=black,shape=plaintext]
+  mgfit_fltr_emis[fontcolor=black,shape=plaintext]
+  mgfit_emis[fontcolor=black,shape=plaintext]
+  mgfit_init_seed[fontcolor=black,shape=plaintext]
+  mgfit_contin[fontcolor=black,shape=plaintext]
+  read_ultradeeplines[fontcolor=black,shape=plaintext]
+  read_skylines[fontcolor=black,shape=plaintext]
+  mgfit_init_spec[fontcolor=black,shape=plaintext]
+  read_stronglines[fontcolor=black,shape=plaintext]
+  nint_idl[fontcolor=black,shape=plaintext]
+  mpfit_whitenoise[fontcolor=black,shape=plaintext]
+  read_deeplines[fontcolor=black,shape=plaintext]
+  mgfit_emis_err[fontcolor=black,shape=plaintext]
+  mgfit_mutation1[fontcolor=black,shape=plaintext]
+}
