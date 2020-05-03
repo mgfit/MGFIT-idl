@@ -96,6 +96,72 @@ Installation in GDL
 
 * This package requires GDL version 0.9.8 or later.
 
+How to Use
+==========
+
+The Documentation of the IDL functions provides in detail in the *API Documentation* (`mgfit.github.io/MGFIT-idl/doc <https://mgfit.github.io/MGFIT-idl/doc>`_). This IDL library fit multiple Gaussian functions to a list of emission lines in the given input spectrum.
+
+You need to load the line list database::
+
+    base_dir = file_dirname(file_dirname((routine_info('$MAIN$', /source)).path))
+    data_dir = ['data']
+    fits_file = filepath('linedata.fits', root_dir=base_dir, subdir=data_dir )
+    strongline_data=read_stronglines(fits_file)
+    deepline_data=read_deeplines(fits_file)
+
+also load your spectrum arrays: wavelength array, and flux array (see `examples <https://github.com/mgfit/MGFIT-idl/tree/master/examples>`_)::
+
+    input_dir = ['examples','inputs']
+    input_file = filepath('spectrum.txt', root_dir=base_dir, subdir=input_dir )
+    read1dspecascii, input_file, wavel, flux
+
+and define the output paths::
+
+    output_dir = ['examples','outputs']
+    image_dir = ['examples','images']
+    image_output_path = filepath('', root_dir=base_dir, subdir=image_dir )
+    output_path = filepath('', root_dir=base_dir, subdir=output_dir )
+
+You need to specify the genetic algorithm settings::
+
+    popsize=30.
+    pressure=0.3
+    generations=500.
+
+and use the appropriate fitting settings such as the wavelength interval, the redshift, and the spectral resolution::
+
+    interval_wavelength=500
+    redshift_initial = 1.0
+    redshift_tolerance=0.001
+    resolution_initial=12000
+    resolution_tolerance=0.9*resolution_initial
+    resolution_min=6000.0
+    resolution_max=30000.0
+
+Now you run the MGFIT main function as follows::
+
+    emissionlines = mgfit_detect_lines(wavel, flux, deepline_data, strongline_data, $
+                                       popsize=popsize, pressure=pressure, $
+                                       generations=generations, $
+                                       interval_wavelength=interval_wavelength, $
+                                       redshift_initial=redshift_initial, $
+                                       redshift_tolerance=redshift_tolerance1, $
+                                       resolution_initial=resolution_initial, $
+                                       resolution_tolerance=resolution_tolerance1, $
+                                       resolution_min=resolution_min, resolution_max=resolution_max, $
+                                       image_output_path=image_output_path, output_path=output_path)
+
+It will take a while to identify lines and fit Gaussian curves. You need to check the images of fitted lines stored in the image folder to remove some misidentified lines manually from the final list.
+
+Notes
+-----
+
+* To get a better results, you should use a higher number of generations and populations, which will increase computational time, but will result in better fitted lines. 
+
+* You also need to adjust the resolution parameters according to the spectral resolution of your observations.
+
+* You also need to change the redshift parameters for high redshift sources. 
+
 Documentation
 =============
 
