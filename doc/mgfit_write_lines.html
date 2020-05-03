@@ -6,7 +6,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
   <head>
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
-    <title>mpfit_whitenoise.pro (API Documentation for MGFIT-idl)</title>
+    <title>mgfit_write_lines.pro (API Documentation for MGFIT-idl)</title>
 
     
 
@@ -160,7 +160,7 @@
 
     <script type="text/javascript">
       function setTitle() {
-        parent.document.title="mpfit_whitenoise.pro (API Documentation for MGFIT-idl)";
+        parent.document.title="mgfit_write_lines.pro (API Documentation for MGFIT-idl)";
       }
     </script>
   </head>
@@ -234,7 +234,7 @@
 
     <div class="content">
       <h2 class="directory">./</h2>
-      <h1 class="basename">mpfit_whitenoise.pro<span class="file-attributes"></span></h1>
+      <h1 class="basename">mgfit_write_lines.pro<span class="file-attributes"></span></h1>
       
 
       
@@ -270,17 +270,17 @@
         
 
         
-        <div class="routine-details details" id="mpfit_whitenoise">
-          <h2 class="routine-name"><a href="#root" class="top">top</a> mpfit_whitenoise<span class="routine-attributes"></span></h2>
+        <div class="routine-details details" id="mgfit_write_lines">
+          <h2 class="routine-name"><a href="#root" class="top">top</a> mgfit_write_lines<span class="routine-attributes"></span></h2>
 
           
-          <p class="small categories">Spectrum, Noise, Uncertainty</p>
+          <p class="small categories">Spectrum</p>
           
 
-          <p class="syntax"><code><span class="var">result</span> = mpfit_whitenoise(<span class="argument"><a href="#mpfit_whitenoise:p:spectrumdata">spectrumdata</a></span>)</code></p>
+          <p class="syntax"><code>mgfit_write_lines<span class="argument">, <a href="#mgfit_write_lines:p:lines">lines</a></span><span class="argument">, <a href="#mgfit_write_lines:p:filename">filename</a></span></code></p>
 
           
-          <div ><p>     This function extracts the white noise from the spectrum.
+          <div ><p>     This function save detected lines.
 </p>
 
 <p></p>
@@ -288,26 +288,38 @@
 </div>
           
 
-          
-          <h3>Return value</h3>
-            <div class="small"><p>     type=arrays of structures. This function returns the white noise
-                               in the arrays of structures
-                               {wavelength: 0.0, flux:0.0, residual:0.0}
-</p>
-
-<p></p>
-
-</div>
           
 
           
           <h3>Parameters</h3>
             <dl>
               
-              <dt id="mpfit_whitenoise:p:spectrumdata">spectrumdata <span class="smaller">in required type=arrays of structures </span></dt>
-              <dd class="small"><p>                       the input spectrum stored in
-                       the arrays of structures
-                       { wavelength: 0.0, flux:0.0, residual:0.0}
+              <dt id="mgfit_write_lines:p:lines">lines <span class="smaller">in required type=arrays of structures </span></dt>
+              <dd class="small"><p>                   the line list stored in
+                   the arrays of structures
+                   { wavelength: 0.0,
+                     peak:0.0,
+                     sigma1:0.0,
+                     flux:0.0,
+                     continuum:0.0,
+                     uncertainty:0.0,
+                     redshift:0.0,
+                     resolution:0.0,
+                     blended:0,
+                     Ion:'',
+                     Multiplet:'',
+                     LowerTerm:'',
+                     UpperTerm:'',
+                     g1:'',
+                     g2:''}
+</p>
+
+<p></p>
+
+</dd>
+              
+              <dt id="mgfit_write_lines:p:filename">filename <span class="smaller">in required type=string </span></dt>
+              <dd class="small"><p>                   the file name for writing the lines.
 </p>
 
 <p></p>
@@ -322,7 +334,7 @@
           
           <h3>Examples</h3>
           <div><p>    For example:
-<div><div><code class="listing"><span class="code-prompt">IDL&gt;</span> specdata=mpfit_whitenoise(specdata)
+<div><div><code class="listing"><span class="code-prompt">IDL&gt;</span> mgfit_write_lines, emissionlines, filename
 </code></div></div></p>
 
 </div>
@@ -354,11 +366,7 @@
 
               
                 <dt>History:</dt>
-                <dd><p>     20/07/2014, A. Danehkar, Translated to IDL from FORTRAN
-                 in ALFA by R. Wessson
-</p>
-
-<p>     21/11/2017, A. Danehkar, Some modifications.
+                <dd><p>     22/10/2019, A. Danehkar, Create function.
 </p>
 
 </dd>
@@ -392,12 +400,12 @@
         <table class="attribute small" summary="File attributes">
           <tr>
             <td class="name">Modification date:</td>
-            <td>Fri May  1 22:58:01 2020</td>
+            <td>Sat May  2 18:02:13 2020</td>
           </tr>
 
           <tr>
             <td class="name">Lines:</td>
-            <td>29</td>
+            <td>19</td>
           </tr>
 
           
