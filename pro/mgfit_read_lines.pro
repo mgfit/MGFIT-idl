@@ -1,3 +1,5 @@
+; docformat = 'rst'
+
 function mgfit_read_lines, filename
 ;+
 ;     This function save detected lines.

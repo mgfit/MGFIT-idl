@@ -1,3 +1,5 @@
+; docformat = 'rst'
+
 pro mgfit_write_lines, lines, filename
 ;+
 ;     This function save detected lines.

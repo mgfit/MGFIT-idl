@@ -1,3 +1,4 @@
+; docformat = 'rst'
 
 function mgfit_filter_lines, line_filter, lines_input
   ;+

@@ -65,9 +65,16 @@ Installation in GDL
     
         sudo apt-get install gnudatalanguage
     
-    - OS X::
-    
+    - OS X (`brew <https://brew.sh/>`_)::
+
+        brew tap brewsci/science
         brew install gnudatalanguage
+
+    - OS X (`macports <https://www.macports.org/>`_)::
+
+        sudo port selfupdate
+        sudo port upgrade libtool
+        sudo port install gnudatalanguage
     
     - Windows: You can use the `GNU Data Language for Win32 <https://sourceforge.net/projects/gnudatalanguage-win32/>`_ (Unofficial Version) or you can compile the `GitHub source <https://github.com/gnudatalanguage/gdl>`_ using Visual Studio 2015 as shown in `appveyor.yml <https://github.com/gnudatalanguage/gdl/blob/master/appveyor.yml>`_.
 

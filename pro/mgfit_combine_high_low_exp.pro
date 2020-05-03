@@ -1,3 +1,5 @@
+; docformat = 'rst'
+
 function mgfit_combine_high_low_exp, line_list, lines_hi, lines_lo, saturation_hi_limit
 ;+
 ;     This function combines two sets of detected lines.
