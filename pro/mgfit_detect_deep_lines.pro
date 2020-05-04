@@ -263,7 +263,7 @@ function mgfit_detect_deep_lines, wavelength, flux, deepline_data, $
         if emissionlines_check[max(nlines)-1].wavelength*(redshift_initial) gt endwlen-long(overlapwlen/2) then begin
           endpos=endpos+long(overlap)
           temp=size(spectrumdata,/DIMENSIONS)
-          if endpos gt temp[0] then begin
+          if endpos ge temp[0] then begin
             endpos = temp[0] -1
           endif
           endwlen=spectrumdata[endpos].wavelength

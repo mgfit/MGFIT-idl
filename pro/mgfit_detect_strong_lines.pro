@@ -151,7 +151,8 @@ function mgfit_detect_strong_lines, wavelength, flux, strongline_data, $
   wavelength_max=wavelength[speclength-1]
 
   spectrumdata=mgfit_init_spec(wavelength, flux)
-   
+  temp=size(spectrumdata,/DIMENSIONS)
+  spectrumdata_len=temp[0]
   ; calculate resolution based on the nyquist sampling rate
   if keyword_set(resolution_initial) eq 0 then begin
     resolution_initial=2*spectrumdata[2].wavelength/(spectrumdata[3].wavelength-spectrumdata[1].wavelength)
@@ -204,6 +205,9 @@ function mgfit_detect_strong_lines, wavelength, flux, strongline_data, $
       overlap = speclength - iw - 1
     endif
     if overlap lt 2 then break
+    if (iw+overlap) ge spectrumdata_len then begin
+       overlap = spectrumdata_len - iw - 1
+    endif
     overlapwlen=spectrumdata[iw+overlap].wavelength-spectrumdata[iw].wavelength
     if (iw eq 0) then begin
       startpos=0
