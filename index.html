@@ -44,7 +44,7 @@
 <div class="section" id="installation">
 <h2>Installation</h2>
 <div class="section" id="dependent-idl-packages">
-<h2>Dependent IDL Packages</h2>
+<h3>Dependent IDL Packages</h3>
 <ul>
 <li><p class="first">This package requires the following packages:</p>
 <blockquote>
@@ -85,9 +85,17 @@ sudo dnf install gdl
 sudo apt-get install gnudatalanguage
 </pre>
 </li>
-<li><p class="first">OS X:</p>
+<li><p class="first">OS X (<a class="reference external" href="https://brew.sh/">brew</a>):</p>
 <pre class="literal-block">
+brew tap brewsci/science
 brew install gnudatalanguage
+</pre>
+</li>
+<li><p class="first">OS X (<a class="reference external" href="https://www.macports.org/">macports</a>):</p>
+<pre class="literal-block">
+sudo port selfupdate
+sudo port upgrade libtool
+sudo port install gnudatalanguage
 </pre>
 </li>
 <li><p class="first">Windows: You can use the <a class="reference external" href="https://sourceforge.net/projects/gnudatalanguage-win32/">GNU Data Language for Win32</a> (Unofficial Version) or you can compile the <a class="reference external" href="https://github.com/gnudatalanguage/gdl">GitHub source</a> using Visual Studio 2015 as shown in <a class="reference external" href="https://github.com/gnudatalanguage/gdl/blob/master/appveyor.yml">appveyor.yml</a>.</p>
@@ -115,6 +123,79 @@ setenv GDL_STARTUP ~/.gdl_startup
 <li><p class="first">This package requires GDL version 0.9.8 or later.</p>
 </li>
 </ul>
+</div>
+</div>
+<div class="section" id="how-to-use">
+<h2>How to Use</h2>
+<p>The Documentation of the IDL functions provides in detail in the <em>API Documentation</em> (<a class="reference external" href="https://mgfit.github.io/MGFIT-idl/doc">mgfit.github.io/MGFIT-idl/doc</a>). This IDL library fit multiple Gaussian functions to a list of emission lines in the given input spectrum.</p>
+<p>You need to load the line list database:</p>
+<pre class="literal-block">
+base_dir = file_dirname(file_dirname((routine_info('$MAIN$', /source)).path))
+data_dir = ['data']
+fits_file = filepath('linedata.fits', root_dir=base_dir, subdir=data_dir )
+strongline_data=read_stronglines(fits_file)
+deepline_data=read_deeplines(fits_file)
+</pre>
+<p>also load your spectrum arrays: wavelength array, and flux array (see <a class="reference external" href="https://github.com/mgfit/MGFIT-idl/tree/master/examples">examples</a>):</p>
+<pre class="literal-block">
+input_dir = ['examples','inputs']
+input_file = filepath('spectrum.txt', root_dir=base_dir, subdir=input_dir )
+read1dspecascii, input_file, wavel, flux
+</pre>
+<p>and define the output paths:</p>
+<pre class="literal-block">
+output_dir = ['examples','outputs']
+image_dir = ['examples','images']
+image_output_path = filepath('', root_dir=base_dir, subdir=image_dir )
+output_path = filepath('', root_dir=base_dir, subdir=output_dir )
+</pre>
+<p>You need to specify the genetic algorithm settings:</p>
+<pre class="literal-block">
+popsize=30.
+pressure=0.3
+generations=500.
+</pre>
+<p>and use the appropriate fitting settings such as the wavelength interval, the redshift, and the spectral resolution:</p>
+<pre class="literal-block">
+interval_wavelength=500
+redshift_initial = 1.0
+redshift_tolerance=0.001
+resolution_initial=12000
+resolution_tolerance=0.9*resolution_initial
+resolution_min=6000.0
+resolution_max=30000.0
+</pre>
+<p>Now you run the MGFIT main function as follows:</p>
+<pre class="literal-block">
+emissionlines = mgfit_detect_lines(wavel, flux, deepline_data, strongline_data, $
+                                   popsize=popsize, pressure=pressure, $
+                                   generations=generations, $
+                                   interval_wavelength=interval_wavelength, $
+                                   redshift_initial=redshift_initial, $
+                                   redshift_tolerance=redshift_tolerance1, $
+                                   resolution_initial=resolution_initial, $
+                                   resolution_tolerance=resolution_tolerance1, $
+                                   resolution_min=resolution_min, resolution_max=resolution_max, $
+                                   image_output_path=image_output_path, output_path=output_path)
+</pre>
+<p>It will take a while to identify lines and fit Gaussian curves. You need to check the images of fitted lines stored in the image folder to remove some misidentified lines manually from the final list.</p>
+<img alt="https://raw.githubusercontent.com/mgfit/MGFIT-idl/master/examples/example2/images/plot_4431_4440.jpg" src="https://raw.githubusercontent.com/mgfit/MGFIT-idl/master/examples/example2/images/plot_4431_4440.jpg" style="width: 100%;" /> <br/>
+<img alt="https://raw.githubusercontent.com/mgfit/MGFIT-idl/master/examples/example2/images/plot_4467_4476.jpg" src="https://raw.githubusercontent.com/mgfit/MGFIT-idl/master/examples/example2/images/plot_4467_4476.jpg" style="width: 100%;" /> <br/>
+<img alt="https://raw.githubusercontent.com/mgfit/MGFIT-idl/master/examples/example2/images/plot_4548_4557.jpg" src="https://raw.githubusercontent.com/mgfit/MGFIT-idl/master/examples/example2/images/plot_4548_4557.jpg" style="width: 100%;" /> <br/>
+<img alt="https://raw.githubusercontent.com/mgfit/MGFIT-idl/master/examples/example2/images/plot_4607_4616.jpg" src="https://raw.githubusercontent.com/mgfit/MGFIT-idl/master/examples/example2/images/plot_4607_4616.jpg" style="width: 100%;" /> <br/>
+<img alt="https://raw.githubusercontent.com/mgfit/MGFIT-idl/master/examples/example2/images/plot_4856_4866.jpg" src="https://raw.githubusercontent.com/mgfit/MGFIT-idl/master/examples/example2/images/plot_4856_4866.jpg" style="width: 100%;" />
+<div class="section" id="notes">
+<h2>Notes</h2>
+<ul class="simple">
+<li>To get better results, you should use a higher number of generations or/and a higher number of populations, which will increase the computational time, but will result in better fitted lines.</li>
+<li>You need to adjust the resolution parameters according to the spectral resolution of your observations.</li>
+<li>You need to change the redshift parameters for high redshift sources.</li>
+</ul>
+</div>
+</div>
+<div class="section" id="documentation">
+<h1>Documentation</h1>
+<p>For more information on how to use the API functions from the MGFIT-idl libray, please read the <a class="reference external" href="https://mgfit.github.io/MGFIT-idl/doc">API Documentation</a> published on <a class="reference external" href="https://mgfit.github.io/MGFIT-idl">mgfit.github.io/MGFIT-idl</a>.</p>
 </div>
 </div>
 
