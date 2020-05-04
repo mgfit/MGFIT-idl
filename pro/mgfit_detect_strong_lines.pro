@@ -9,7 +9,9 @@ function mgfit_detect_strong_lines, wavelength, flux, strongline_data, $
                                     resolution_initial=resolution_initial, $
                                     resolution_tolerance=resolution_tolerance, $
                                     resolution_min=resolution_min, resolution_max=resolution_max, $
-                                    auto_line_array_size=auto_line_array_size
+                                    auto_line_array_size=auto_line_array_size, $
+                                    image_output_path=image_output_path, $
+                                    printgenerations=printgenerations
 ;+
 ;     This function detects lines from the strong line list.
 ;
@@ -73,6 +75,12 @@ function mgfit_detect_strong_lines, wavelength, flux, strongline_data, $
 ;     auto_line_array_size :    in, not required, type=boolean
 ;                               automatically determine the line array size for the internal usage
 ;
+;     image_output_path    :    in, optional, type=string
+;                               the image output path
+;                          
+;     printgenerations :    in, optional, type=string
+;                                Set to produce plots in all generations 
+;  
 ; :Examples:
 ;    For example::
 ;
@@ -244,23 +252,27 @@ function mgfit_detect_strong_lines, wavelength, flux, strongline_data, $
         emissionlines_section = mgfit_emis(spec_section, redshift_initial, resolution_initial, $
           emissionlines_section, redshift_tolerance, resolution_tolerance, $
           resolution_min, resolution_max, $
-          generations, popsize, pressure, line_array_size=linelocation0_step)
+          generations, popsize, pressure, line_array_size=linelocation0_step, $
+          image_output_path=image_output_path, printgenerations=printgenerations)
       endif else begin
         emissionlines_section = mgfit_emis(spec_section, redshift_initial, resolution_initial, $
           emissionlines_section, redshift_tolerance, resolution_tolerance, $
           resolution_min, resolution_max, $
-          generations, popsize, pressure); , line_array_size=linelocation0_step)     
+          generations, popsize, pressure, $; , line_array_size=linelocation0_step, $   
+          image_output_path=image_output_path, printgenerations=printgenerations)
       endelse
 
       strong_line=min(where(emissionlines_section.flux eq max(emissionlines_section.flux)))
       ;redshift_initial0 = emissionlines_section[strong_line].redshift
       ;redshift_initial=redshift_initial0
-      redshift_initial=emissionlines_section[strong_line].redshift
-      if nlines gt 1 then begin
-        strong_emissionlines[linearraypos:linearraypos+nlines-1]=emissionlines_section
-      endif else begin
-        strong_emissionlines[linearraypos]=emissionlines_section
-      endelse
+      if strong_line[0] ne -1 then begin
+        redshift_initial=emissionlines_section[strong_line].redshift
+        if nlines gt 1 then begin
+          strong_emissionlines[linearraypos:linearraypos+nlines-1]=emissionlines_section
+        endif else begin
+          strong_emissionlines[linearraypos]=emissionlines_section
+        endelse
+      endif
       linearraypos=linearraypos+nlines
 
       print, "Level %:", double(iw+1)/double(speclength)*100.0

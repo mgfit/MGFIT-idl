@@ -173,7 +173,9 @@ function mgfit_detect_lines, wavelength, flux, deepline_data, strongline_data, $
                                                   redshift_tolerance=redshift_tolerance, $
                                                   resolution_initial=resolution_initial, $
                                                   resolution_tolerance=resolution_tolerance, $
-                                                  resolution_min=resolution_min, resolution_max=resolution_max)
+                                                  resolution_min=resolution_min, $
+                                                  resolution_max=resolution_max, $
+                                                  image_output_path=image_output_path)
 
   stron_line_save_file=output_path+'save_strong_line_list.txt'
   mgfit_write_lines, strong_emissionlines, stron_line_save_file

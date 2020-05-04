@@ -4,7 +4,9 @@ function mgfit_emis, specdata, redshift_initial, resolution_initial, emissionlin
                      redshift_tolerance1, resolution_tolerance1, $
                      resolution_min, resolution_max,$
                      generations, popsize, pressure, line_array_size=line_array_size, $
-                     no_blueshift=no_blueshift, printimage=printimage, imagename=imagename
+                     no_blueshift=no_blueshift, printimage=printimage, $
+                     imagename=imagename, image_output_path=image_output_path, $
+                     printgenerations=printgenerations
 ;+
 ;     This function fits multiple Gaussian functions to a list of emission lines using 
 ;     a least-squares minimization technique and a genetic-type random walk
@@ -31,6 +33,12 @@ function mgfit_emis, specdata, redshift_initial, resolution_initial, emissionlin
 ; 
 ;     imagename          :     in, required, type=string
 ;                              The file name for plots if printimage sets
+;                               
+;     image_output_path    :    in, optional, type=string
+;                               the image output path
+;                               
+;     printgenerations :    in, optional, type=string
+;                                Set to produce plots in all generations 
 ;
 ; :Params:
 ;     specdata           :     in, required, type=arrays of structures
@@ -75,7 +83,7 @@ function mgfit_emis, specdata, redshift_initial, resolution_initial, emissionlin
 ;     
 ;     pressure             :    in, required, type=float  
 ;                               the value of the selective pressure in the genetic algorithm
-;
+;                          
 ; :Examples:
 ;    For example::
 ;
@@ -304,6 +312,42 @@ function mgfit_emis, specdata, redshift_initial, resolution_initial, emissionlin
     endfor
     percentage = double(gencount+1)/double(generations)*100.0
     if percentage mod 20 eq 0 then print, "Percentage:", percentage
+    if keyword_set(printgenerations) eq 1 and total(emissionlines.peak) ne 0 then begin 
+      ;set_plot,'ps'
+      set_plot,'ps'
+      if keyword_set(image_output_path) eq 1 then begin
+        filename=image_output_path+'/plot_'+strtrim(string(long(min(specdata.wavelength))),2)+'_'+strtrim(string(long(max(specdata.wavelength))),2)+'_'+strtrim(string(long(max(gencount))),2)+'.eps'
+      endif else begin
+        filename='plot_'+strtrim(string(long(startwlen)),2)+'_'+strtrim(string(long(endwlen)),2)+'_'+strtrim(string(long(max(gencount))),2)+'.eps'
+      endelse
+      device, /color, bits_per_pixeL=8, font_size=7, $
+           filename=filename, $
+           encapsulated=1, helvetica=1, bold=1, book=1, $
+           xsize=7.0, ysize=2.391, inches=1
+      loadct,13
+      
+      plot, specdata1.wavelength, specdata1.flux, color=cgColor('black'), $
+           XTITLE=textoidl('\lambda (!6!sA!r!u!9 %!6 !n)'), $
+           YTITLE=textoidl('F_{\lambda} (10^{-15} erg cm^{-2} s^{-1} !6!sA!r!u!9 %!6 !n^{-1})'), $
+           ;XRANGE =[3600, 4400], 
+           YRANGE=[0.0, 1.5*max(specdata1.flux)], $
+           position=[0.1, 0.10, 0.97, 0.95], $  ; with scale
+           XTICKLEN=0.01, YTICKLEN=0.01, $
+           XStyle=1, YStyle=1 ;/nodata , Thick=0.5,  
+      specsynth1=specsynth[*,0]
+      oplot, specsynth1.wavelength, specsynth1.flux, color=cgColor('red')
+      for lineid=0,nlines -1   do begin
+        if emissionlines[lineid].flux ne 0 then begin
+          IonName='  - '+emissionlines[lineid].ion + ' ' +textoidl('\lambda')+ strtrim(string(long(emissionlines[lineid].wavelength)),2)
+          ;textoidl('!6!sA!r!u!9 %!6 !n')
+          xyouts, emissionlines[lineid].wavelength*emissionlines[lineid].redshift, emissionlines[lineid].peak, IonName, ORIENTATION=90, /DATA
+        endif
+      endfor
+    
+      device, /close
+      
+      set_plot, 'x'
+    endif
   endfor
   chi_squared_min_loc=minloc_idl(chi_squared,first=1)
   specsynth_best=specsynth[*,chi_squared_min_loc]
@@ -380,11 +424,18 @@ function mgfit_emis, specdata, redshift_initial, resolution_initial, emissionlin
     endfor
   endif
   
-  if keyword_set(printimage) eq 1 and keyword_set(imagename) eq 1 and total(emissionlines.peak) ne 0 then begin 
+  if keyword_set(printimage) eq 1 and total(emissionlines.peak) ne 0 then begin 
     ;set_plot,'ps'
     set_plot,'ps'
-    filename=imagename
-    
+    if keyword_set(imagename) eq 1 and keyword_set(image_output_path) eq 1 then begin
+      filename=image_output_path+'/'+imagename
+    endif else begin
+      if keyword_set(image_output_path) eq 1 then begin
+        filename=image_output_path+'/plot_'+strtrim(string(long(min(specdata.wavelength))),2)+'_'+strtrim(string(long(max(specdata.wavelength))),2)+'.eps'
+      endif else begin
+        filename='plot_'+strtrim(string(long(startwlen)),2)+'_'+strtrim(string(long(endwlen)),2)+'.eps'
+      endelse
+    endelse
     device, /color, bits_per_pixeL=8, font_size=7, $
          filename=filename, $
          encapsulated=1, helvetica=1, bold=1, book=1, $
@@ -396,7 +447,7 @@ function mgfit_emis, specdata, redshift_initial, resolution_initial, emissionlin
          YTITLE=textoidl('F_{\lambda} (10^{-15} erg cm^{-2} s^{-1} !6!sA!r!u!9 %!6 !n^{-1})'), $
          ;XRANGE =[3600, 4400], 
          YRANGE=[0.0, 1.5*max(specdata1.flux)], $
-         position=[0.08, 0.10, 0.97, 0.95], $  ; with scale
+         position=[0.1, 0.10, 0.97, 0.95], $  ; with scale
          XTICKLEN=0.01, YTICKLEN=0.01, $
          XStyle=1, YStyle=1 ;/nodata , Thick=0.5,  
     oplot, specsynth_best.wavelength, specsynth_best.flux, color=cgColor('red')

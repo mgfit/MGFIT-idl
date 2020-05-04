@@ -13,7 +13,8 @@ function mgfit_detect_deep_lines, wavelength, flux, deepline_data, $
                                   resolution_tolerance=resolution_tolerance, $
                                   resolution_min=resolution_min, resolution_max=resolution_max, $
                                   auto_line_array_size=auto_line_array_size, $
-                                  image_output_path=image_output_path
+                                  image_output_path=image_output_path, $
+                                  printgenerations=printgenerations
 ;+
 ;     This function detects lines from the deep line list.
 ;
@@ -105,6 +106,9 @@ function mgfit_detect_deep_lines, wavelength, flux, deepline_data, $
 ;
 ;     image_output_path    :    in, optional, type=string
 ;                               the image output path
+;                                                 
+;     printgenerations :    in, optional, type=string
+;                                Set to produce plots in all generations 
 ;
 ; :Examples:
 ;    For example::
@@ -258,6 +262,10 @@ function mgfit_detect_deep_lines, wavelength, flux, deepline_data, $
       if (nlines gt 0) then begin
         if emissionlines_check[max(nlines)-1].wavelength*(redshift_initial) gt endwlen-long(overlapwlen/2) then begin
           endpos=endpos+long(overlap)
+          temp=size(spectrumdata,/DIMENSIONS)
+          if endpos gt temp[0] then begin
+            endpos = temp[0] -1
+          endif
           endwlen=spectrumdata[endpos].wavelength
         endif
       endif
@@ -265,8 +273,11 @@ function mgfit_detect_deep_lines, wavelength, flux, deepline_data, $
 
     find_nearest=abs(strong_emissionlines.wavelength-startwlen)
     find_nearest_loc=where(find_nearest eq min(find_nearest))
-    redshift_initial = strong_emissionlines[find_nearest_loc].redshift
-
+    if find_nearest_loc[0] ne -1 then begin 
+      if strong_emissionlines[find_nearest_loc].redshift ne 0 then begin
+        redshift_initial = strong_emissionlines[find_nearest_loc].redshift
+      endif
+    endif
     spec_section =replicate(spectrumstructure, endpos-startpos+1)
     spec_section = spectrumdata[startpos:endpos]
 
@@ -277,19 +288,22 @@ function mgfit_detect_deep_lines, wavelength, flux, deepline_data, $
     if (nlines gt 0) then begin
       ;nimage=nimage+1
       ;imagename=output_path+'images/plot'+strtrim(string(i/step1+1),2)+'.eps'
-      imagename=image_output_path+'/plot_'+strtrim(string(long(startwlen)),2)+'_'+strtrim(string(long(endwlen)),2)+'.eps'
+      imagename='plot_'+strtrim(string(long(startwlen)),2)+'_'+strtrim(string(long(endwlen)),2)+'.eps'
+      ;if long(startwlen) eq 4431 then printgenerations=1 else printgenerations=0
       if keyword_set(auto_line_array_size) eq 0 then begin
         if keyword_set(image_output_path) eq 1 then begin
           emissionlines_section = mgfit_emis(spec_section, redshift_initial, resolution_initial, $
             emissionlines_section, redshift_tolerance, resolution_tolerance, $
             resolution_min, resolution_max, $
             generations, popsize, pressure, line_array_size=linelocation0_step, $
-            /no_blueshift, /printimage, imagename=imagename)
+            printgenerations=printgenerations, $
+            /no_blueshift, /printimage, imagename=imagename, image_output_path=image_output_path)
         endif else begin
           emissionlines_section = mgfit_emis(spec_section, redshift_initial, resolution_initial, $
             emissionlines_section, redshift_tolerance, resolution_tolerance, $
             resolution_min, resolution_max, $
             generations, popsize, pressure, line_array_size=linelocation0_step, $
+            printgenerations=printgenerations, $
             /no_blueshift)
         endelse
       endif else begin
@@ -298,12 +312,14 @@ function mgfit_detect_deep_lines, wavelength, flux, deepline_data, $
             emissionlines_section, redshift_tolerance, resolution_tolerance, $
             resolution_min, resolution_max, $
             generations, popsize, pressure, $ ;line_array_size=linelocation0_step, $
-            /no_blueshift, /printimage, imagename=imagename) 
+            printgenerations=printgenerations, $
+            /no_blueshift, /printimage, imagename=imagename, image_output_path=image_output_path) 
         endif else begin
           emissionlines_section = mgfit_emis(spec_section, redshift_initial, resolution_initial, $
             emissionlines_section, redshift_tolerance, resolution_tolerance, $
             resolution_min, resolution_max, $
             generations, popsize, pressure, $ ;line_array_size=linelocation0_step, $
+            printgenerations=printgenerations, $
             /no_blueshift) 
         endelse
       endelse
