@@ -171,14 +171,13 @@ It will take a while to identify lines and fit Gaussian curves. You need to chec
 Notes
 -----
 
-* To get a better results, you should use a higher number of generations and populations, which will increase computational time, but will result in better fitted lines. 
+* To get better results, you should use a higher number of generations or/and a higher number of populations, which will increase the computational time, but will result in better fitted lines. 
 
-* You also need to adjust the resolution parameters according to the spectral resolution of your observations.
+* You need to adjust the resolution parameters according to the spectral resolution of your observations.
 
-* You also need to change the redshift parameters for high redshift sources. 
+* You need to change the redshift parameters for high redshift sources. 
 
 Documentation
 =============
 
 For more information on how to use the API functions from the MGFIT-idl libray, please read the `API Documentation  <https://mgfit.github.io/MGFIT-idl/doc>`_ published on `mgfit.github.io/MGFIT-idl <https://mgfit.github.io/MGFIT-idl>`_.
-
