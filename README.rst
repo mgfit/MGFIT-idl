@@ -153,6 +153,21 @@ Now you run the MGFIT main function as follows::
 
 It will take a while to identify lines and fit Gaussian curves. You need to check the images of fitted lines stored in the image folder to remove some misidentified lines manually from the final list.
 
+.. image:: https://raw.githubusercontent.com/mgfit/MGFIT-idl/master/examples/example2/images/plot_4431_4440.jpg
+    :width: 200
+
+.. image:: https://raw.githubusercontent.com/mgfit/MGFIT-idl/master/examples/example2/images/plot_4467_4476.jpg
+    :width: 200
+
+.. image:: https://raw.githubusercontent.com/mgfit/MGFIT-idl/master/examples/example2/images/plot_4548_4557.jpg
+    :width: 200
+
+.. image:: https://raw.githubusercontent.com/mgfit/MGFIT-idl/master/examples/example2/images/plot_4607_4616.jpg
+    :width: 200
+
+.. image:: https://raw.githubusercontent.com/mgfit/MGFIT-idl/master/examples/example2/images/plot_4856_4866.jpg
+    :width: 200
+    
 Notes
 -----
 
