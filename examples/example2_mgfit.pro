@@ -64,9 +64,9 @@ emissionlines = mgfit_detect_lines(wavel, flux, deepline_data, strongline_data, 
                                    generations=generations, $
                                    interval_wavelength=interval_wavelength, $
                                    redshift_initial=redshift_initial, $
-                                   redshift_tolerance=redshift_tolerance1, $
+                                   redshift_tolerance=redshift_tolerance, $
                                    resolution_initial=resolution_initial, $
-                                   resolution_tolerance=resolution_tolerance1, $
+                                   resolution_tolerance=resolution_tolerance, $
                                    resolution_min=resolution_min, resolution_max=resolution_max, $
                                    image_output_path=image_output_path, output_path=output_path, /auto_line_array_size)
 

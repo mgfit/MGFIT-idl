@@ -1,12 +1,12 @@
 ; docformat = 'rst'
 
 function mgfit_emis, specdata, redshift_initial, resolution_initial, emissionlines, $
-                     redshift_tolerance1, resolution_tolerance1, $
+                     redshift_tolerance, resolution_tolerance, $
                      resolution_min, resolution_max,$
                      generations, popsize, pressure, line_array_size=line_array_size, $
                      no_blueshift=no_blueshift, printimage=printimage, $
                      imagename=imagename, image_output_path=image_output_path, $
-                     printgenerations=printgenerations
+                     printgenerations=printgenerations, no_mpfit=no_mpfit
 ;+
 ;     This function fits multiple Gaussian functions to a list of emission lines using 
 ;     a least-squares minimization technique and a genetic-type random walk
@@ -39,6 +39,10 @@ function mgfit_emis, specdata, redshift_initial, resolution_initial, emissionlin
 ;                               
 ;     printgenerations :    in, optional, type=string
 ;                                Set to produce plots in all generations 
+; 
+;     no_mpfit           :     in, required, type=boolean
+;                              Do not use MPFIT to initialize the seed
+;                           
 ;
 ; :Params:
 ;     specdata           :     in, required, type=arrays of structures
@@ -88,7 +92,7 @@ function mgfit_emis, specdata, redshift_initial, resolution_initial, emissionlin
 ;    For example::
 ;
 ;     IDL> fitstronglines = mgfit_emis(stronglines, redshift_initial, resolution_initial, $
-;     IDL>                            emissionlines, redshift_tolerance1, resolution_tolerance1, $
+;     IDL>                            emissionlines, redshift_tolerance, resolution_tolerance, $
 ;     IDL>                            generations, popsize, pressure, line_array_size=linelocation0_step)
 ;
 ; :Categories:
@@ -169,6 +173,7 @@ function mgfit_emis, specdata, redshift_initial, resolution_initial, emissionlin
     return, emissionlines ; cannot find lines!
   endif
   linelocation0_step_h=long(linelocation0_step/4)
+  resolution_tolerance_ratio=resolution_tolerance/resolution_initial
   for i=0, nlines-1 do begin
       linelocation0 = where(specdata1.wavelength gt redshift_initial*emissionlines[i].wavelength)
       linelocation=min(linelocation0)
@@ -192,19 +197,20 @@ function mgfit_emis, specdata, redshift_initial, resolution_initial, emissionlin
       ;a[0] Peak Value 
       ;a[1] Peak Centroid 
       ;a[2] Gaussian Sigma
-      sigma_tolerance1=emissionlines[i].wavelength/resolution_initial
+      ;sigma_tolerance1=(emissionlines[i].wavelength/resolution_initial)+(emissionlines[i].wavelength/resolution_tolerance)
+      sigma_tolerance1=(emissionlines[i].wavelength/resolution_initial)*(1.+resolution_tolerance_ratio)
       peak1=a[0]
       centroid1=a[1]
       sigma1=a[2]
       if (abs(sigma1) gt sigma_tolerance1) then begin
-        sigma1 = sigma_tolerance1
+        sigma1 = emissionlines[i].wavelength/resolution_initial
       endif
       ;if peak1 le 0 then begin
       ;  peak1=0
       ;  centroid1=emissionlines[i].wavelength
       ;  sigma1=(emissionlines[i].wavelength/resolution_initial)
       ;endif
-      if a[0] gt 0 then begin
+      if a[0] gt 0 and keyword_set(no_mpfit) eq 0 then begin
         emissionlines[i].peak=peak1
         emissionlines[i].sigma1=sigma1
         emissionlines[i].resolution=emissionlines[i].wavelength/emissionlines[i].sigma1
@@ -258,7 +264,7 @@ function mgfit_emis, specdata, redshift_initial, resolution_initial, emissionlin
       specsynth[*,popnumber]=mgfit_synth_spec(population[popnumber,*], specsynth[*,popnumber])
       ;calculate chi-squares 
       deviates=(specdata1[*].flux-specsynth[*,popnumber].flux)
-      chi_squared[popnumber]=total(deviates^2)/(freedom_degree*sigma_squares)
+      chi_squared[popnumber]=total(deviates^2.)/(freedom_degree*sigma_squares)
       chi_squared2=chi_squared
 ;      residualmin=min(specdata1.residual)
 ;      if residualmin ne 0 then begin
@@ -292,22 +298,24 @@ function mgfit_emis, specdata, redshift_initial, resolution_initial, emissionlin
     endfor
     for popnumber=1,popsize-1 do begin
       for lineid=0,nlines -1   do begin
-        population[popnumber,lineid].resolution = population[popnumber,lineid].resolution + ((mgfit_mutation1()-1.)*resolution_tolerance1)
-        population[popnumber,lineid].resolution = population[popnumber,lineid].wavelength/emissionlines[lineid].sigma1
-        if (abs(population[popnumber,lineid].resolution-resolution_initial) gt resolution_tolerance1) then begin
+        population[popnumber,lineid].resolution = population[popnumber,lineid].resolution + ((mgfit_mutation1(level=0.05)-1.)*resolution_tolerance)
+        ;population[popnumber,lineid].resolution = population[popnumber,lineid].wavelength/emissionlines[lineid].sigma1
+        ;print,population[popnumber,lineid].resolution
+        if (abs(population[popnumber,lineid].resolution-resolution_initial) gt resolution_tolerance) then begin
            population[popnumber,lineid].resolution = population[popnumber,lineid].wavelength/emissionlines[lineid].sigma1
            population[popnumber,lineid].sigma1=emissionlines[lineid].sigma1
         endif
-        population[popnumber,lineid].redshift = population[popnumber,lineid].redshift + ((mgfit_mutation1()-1.)*redshift_tolerance1)  
+        population[popnumber,lineid].redshift = population[popnumber,lineid].redshift + ((mgfit_mutation1(level=0.05)-1.)*redshift_tolerance)
+        print,population[popnumber,lineid].redshift
         if keyword_set(no_blueshift) then begin
           if population[popnumber,lineid].redshift lt redshift_initial then begin
              population[popnumber,lineid].redshift = redshift_initial
           endif       
         endif
-        if (abs(population[popnumber,lineid].redshift-redshift_initial) gt redshift_tolerance1) then begin
+        if (abs(population[popnumber,lineid].redshift-redshift_initial) gt redshift_tolerance) then begin
           population[popnumber,lineid].redshift = emissionlines[lineid].redshift
         endif
-        population[popnumber,lineid].peak = population[popnumber,lineid].peak * (1.+0.5*(mgfit_mutation1()-1.))
+        population[popnumber,lineid].peak = population[popnumber,lineid].peak * (1.+0.5*(mgfit_mutation1(level=0.05)-1.))
       endfor
     endfor
     percentage = double(gencount+1)/double(generations)*100.0
@@ -333,8 +341,9 @@ function mgfit_emis, specdata, redshift_initial, resolution_initial, emissionlin
            YRANGE=[0.0, 1.5*max(specdata1.flux)], $
            position=[0.1, 0.10, 0.97, 0.95], $  ; with scale
            XTICKLEN=0.01, YTICKLEN=0.01, $
-           XStyle=1, YStyle=1 ;/nodata , Thick=0.5,  
-      specsynth1=specsynth[*,0]
+           XStyle=1, YStyle=1 ;/nodata , Thick=0.5,
+      chi_squared_min_loc=minloc_idl(chi_squared,first=1)  
+      specsynth1=specsynth[*,chi_squared_min_loc]
       oplot, specsynth1.wavelength, specsynth1.flux, color=cgColor('red')
       for lineid=0,nlines -1   do begin
         if emissionlines[lineid].flux ne 0 then begin

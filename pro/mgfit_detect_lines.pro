@@ -162,7 +162,7 @@ function mgfit_detect_lines, wavelength, flux, deepline_data, strongline_data, $
     redshift_tolerance = 0.001
   endif
   if keyword_set(resolution_tolerance) eq 0 then begin
-    resolution_tolerance = 0.02*resolution_initial
+    resolution_tolerance = 0.1*resolution_initial
   endif
   if keyword_set(resolution_min) eq 0 then begin
     resolution_min = 6000.0

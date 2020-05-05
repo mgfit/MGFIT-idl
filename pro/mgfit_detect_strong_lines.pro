@@ -11,7 +11,7 @@ function mgfit_detect_strong_lines, wavelength, flux, strongline_data, $
                                     resolution_min=resolution_min, resolution_max=resolution_max, $
                                     auto_line_array_size=auto_line_array_size, $
                                     image_output_path=image_output_path, $
-                                    printgenerations=printgenerations
+                                    printgenerations=printgenerations, no_mpfit=no_mpfit
 ;+
 ;     This function detects lines from the strong line list.
 ;
@@ -80,7 +80,10 @@ function mgfit_detect_strong_lines, wavelength, flux, strongline_data, $
 ;                          
 ;     printgenerations :    in, optional, type=string
 ;                                Set to produce plots in all generations 
-;  
+; 
+;     no_mpfit           :     in, required, type=boolean
+;                              Do not use MPFIT to initialize the seed
+;   
 ; :Examples:
 ;    For example::
 ;
@@ -137,7 +140,7 @@ function mgfit_detect_strong_lines, wavelength, flux, strongline_data, $
     redshift_tolerance = 0.001
   endif 
   if keyword_set(resolution_tolerance) eq 0 then begin
-    resolution_tolerance = 0.9 *resolution_initial
+    resolution_tolerance = 0.1 *resolution_initial
   endif 
   if keyword_set(resolution_min) eq 0 then begin
     resolution_min = 6000.0
@@ -257,13 +260,15 @@ function mgfit_detect_strong_lines, wavelength, flux, strongline_data, $
           emissionlines_section, redshift_tolerance, resolution_tolerance, $
           resolution_min, resolution_max, $
           generations, popsize, pressure, line_array_size=linelocation0_step, $
-          image_output_path=image_output_path, printgenerations=printgenerations)
+          image_output_path=image_output_path, printgenerations=printgenerations, $
+          no_mpfit=no_mpfit)
       endif else begin
         emissionlines_section = mgfit_emis(spec_section, redshift_initial, resolution_initial, $
           emissionlines_section, redshift_tolerance, resolution_tolerance, $
           resolution_min, resolution_max, $
           generations, popsize, pressure, $; , line_array_size=linelocation0_step, $   
-          image_output_path=image_output_path, printgenerations=printgenerations)
+          image_output_path=image_output_path, printgenerations=printgenerations, $
+          no_mpfit=no_mpfit)
       endelse
 
       strong_line=min(where(emissionlines_section.flux eq max(emissionlines_section.flux)))

@@ -1,11 +1,15 @@
 ; docformat = 'rst'
 
-function mgfit_mutation1
+function mgfit_mutation1, level=level
 ;+
 ;     This function is for the genetic algorithm mutation type-1
 ;
 ; :Returns:
 ;     type=arrays. This function mutation rate.
+;
+; :Params:
+;     level              :     in, required, type=float
+;                              the mutation level (percentage)
 ;
 ; :Examples:
 ;    For example::
@@ -33,12 +37,15 @@ function mgfit_mutation1
 ;                 in ALFA by R. Wessson
 ;- 
   common random_seed, seed
+  if keyword_set(level) eq 0 then begin
+    level=0.05
+  endif
   value=1.0
   random = randomu(seed)
-  if (random le 0.05) then begin
+  if (random le level) then begin
     value=1.*random
   endif 
-  if (random ge 0.95) then begin
+  if (random ge (1.0- level)) then begin
     value=2.+(1.*(random-1))
   endif 
 ;  if (random le 0.05) then begin
