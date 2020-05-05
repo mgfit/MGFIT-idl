@@ -274,7 +274,10 @@ function mgfit_detect_strong_lines, wavelength, flux, strongline_data, $
         if nlines gt 1 then begin
           strong_emissionlines[linearraypos:linearraypos+nlines-1]=emissionlines_section
         endif else begin
+          ;temp=size(strong_emissionlines,/DIMENSIONS)
+          ;if linearraypos lt temp[0] then begin
           strong_emissionlines[linearraypos]=emissionlines_section
+          ;endif
         endelse
       endif
       linearraypos=linearraypos+nlines

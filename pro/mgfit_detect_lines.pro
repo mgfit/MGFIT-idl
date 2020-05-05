@@ -3,6 +3,7 @@
 function mgfit_detect_lines, wavelength, flux, deepline_data, strongline_data, $
                             popsize=popsize, pressure=pressure, $
                             generations=generations, $
+                            rebin_resolution=rebin_resolution, $
                             interval_wavelength=interval_wavelength, $
                             redshift_initial=redshift_initial, $
                             redshift_tolerance=redshift_tolerance, $
@@ -62,6 +63,10 @@ function mgfit_detect_lines, wavelength, flux, deepline_data, strongline_data, $
 ;     generations          :    in, optional, type=float
 ;                               the maximum generation number in the genetic algorithm
 ;
+;     rebin_resolution     :    in, optional, type=float
+;                               increase the spectrum resolution by rebinning 
+;                               resolution by rebin_resolution times
+;     
 ;     interval_wavelength  :    in, optional, type=float
 ;                               the wavelength interval used in each iteration
 ;
@@ -165,6 +170,16 @@ function mgfit_detect_lines, wavelength, flux, deepline_data, strongline_data, $
   if keyword_set(resolution_max) eq 0 then begin
     resolution_max = 30000.0
   endif
+  if keyword_set(rebin_resolution) eq 1 then begin
+    temp=size(wavelength,/DIMENSIONS)
+    speclength=temp[0]
+    speclength_new=rebin_resolution*speclength
+    wavelength_new = interpolate(wavelength, (double(speclength)-1.)/(double(speclength_new)-1.) * findgen(speclength_new))
+    flux_new = interpolate(flux, (double(speclength)-1.)/(double(speclength_new)-1.) * findgen(speclength_new))
+    wavelength=wavelength_new
+    flux=flux_new
+  endif
+  resolution_tolerance_ratio=resolution_tolerance/resolution_initial
   strong_emissionlines = mgfit_detect_strong_lines(wavelength, flux, strongline_data, $
                                                   popsize=popsize, pressure=pressure, $
                                                   generations=generations, $
@@ -203,7 +218,8 @@ function mgfit_detect_lines, wavelength, flux, deepline_data, strongline_data, $
   resolution_initial=strong_emissionlines[strong_line].resolution
   resolution_strongline=resolution_initial
   ;resolution_tolerance1=0.02*resolution_initial;0.001*resolution_initial;0.02*resolution_initial;0.02*
-  resolution_tolerance2=0.02*resolution_initial;0.001*resolution_initial;0.0001*resolution_initial;0.01*resolution_initial;0.01*500;500.
+  ;resolution_tolerance2=0.02*resolution_initial;0.001*resolution_initial;0.0001*resolution_initial;0.01*resolution_initial;0.01*500;500.
+  resolution_tolerance2=resolution_tolerance_ratio*resolution_initial
   emissionlines = mgfit_detect_deep_lines(wavelength, flux, deepline_data, $
                                           strong_emissionlines, strongline_data, $
                                           popsize=popsize, pressure=pressure, $

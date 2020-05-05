@@ -274,6 +274,7 @@ function mgfit_detect_deep_lines, wavelength, flux, deepline_data, $
     find_nearest=abs(strong_emissionlines.wavelength-startwlen)
     find_nearest_loc=where(find_nearest eq min(find_nearest))
     if find_nearest_loc[0] ne -1 then begin 
+      find_nearest_loc=min(find_nearest_loc)
       if strong_emissionlines[find_nearest_loc].redshift ne 0 then begin
         redshift_initial = strong_emissionlines[find_nearest_loc].redshift
       endif

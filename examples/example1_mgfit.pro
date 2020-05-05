@@ -53,7 +53,7 @@ redshift_initial = 1.0
 redshift_tolerance=0.001
 ; spectral resolution initial and tolerance
 resolution_initial=12000
-resolution_tolerance=0.9*resolution_initial
+resolution_tolerance=0.1*resolution_initial
 resolution_min=6000.0
 resolution_max=30000.0
 
@@ -77,9 +77,13 @@ fluxR=fluxR*1.0e17
 wavel=[wavelB[loc1_B], wavelR[loc1_R], wavelR2] ; concatenate wavelength arrays
 flux=[fluxB[loc1_B], fluxR[loc1_R], fluxR2]  ; concatenate flux arrays
 
+; increase the spectrum resolution by 10 times rebinning
+rebin_resolution = 10
+
 emissionlines = mgfit_detect_lines(wavel, flux, deepline_data, strongline_data, $
                                    popsize=popsize, pressure=pressure, $
                                    generations=generations, $
+                                   rebin_resolution=rebin_resolution, $
                                    interval_wavelength=interval_wavelength, $
                                    redshift_initial=redshift_initial, $
                                    redshift_tolerance=redshift_tolerance1, $
