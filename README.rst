@@ -167,7 +167,13 @@ It will take a while to identify lines and fit Gaussian curves. You need to chec
 
 .. image:: https://raw.githubusercontent.com/mgfit/MGFIT-idl/master/examples/example2/images/plot_4856_4866.jpg
     :width: 200
-    
+
+.. image:: https://raw.githubusercontent.com/mgfit/MGFIT-idl/master/examples/animation/plot_6546_6552.gif
+    :width: 200
+
+.. image:: https://raw.githubusercontent.com/mgfit/MGFIT-idl/master/examples/animation/plot_4856_4865.gif
+    :width: 200
+
 Notes
 -----
 
