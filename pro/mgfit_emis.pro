@@ -226,6 +226,11 @@ function mgfit_emis, specdata, redshift_initial, resolution_initial, emissionlin
         emissionlines[i].sigma1=emissionlines[i].wavelength/resolution_initial
         emissionlines[i].resolution=resolution_initial
         emissionlines[i].redshift=redshift_initial
+        if keyword_set(no_blueshift) then begin
+          if emissionlines[i].redshift lt redshift_initial then begin
+             emissionlines[i].redshift = redshift_initial
+          endif
+        endif
         emissionlines[i].continuum=cont1
       endelse
   endfor
@@ -256,7 +261,86 @@ function mgfit_emis, specdata, redshift_initial, resolution_initial, emissionlin
   sigma_squares=variance(specdata1[*].flux)
   mean_flux=mean(specdata1[*].flux)
   freedom_degree=speclength - gaussian_number
+  
+  specsynth.flux[*]=0.0
+  chi_squared[*]=0.0
+  for popnumber=0,popsize-1 do begin
+    ;make synthetic spectrum
+    specsynth[*,popnumber]=mgfit_synth_spec(population[popnumber,*], specsynth[*,popnumber])
+    ;calculate chi-squares 
+    deviates=(specdata1[*].flux-specsynth[*,popnumber].flux)
+    chi_squared[popnumber]=total(deviates^2.)/(freedom_degree*sigma_squares)
+    chi_squared2=chi_squared
+;   residualmin=min(specdata1.residual)
+;   if residualmin ne 0 then begin
+;     deviates=(specdata1[*].flux-specsynth[*,popnumber].flux)/specdata1[*].residual
+;     chi_squared[popnumber]=total(deviates^2)/freedom_degree
+;   endif else begin
+;     deviates=(specdata1[*].flux-specsynth[*,popnumber].flux)
+;     chi_squared[popnumber]=total(deviates^2)/freedom_degree
+;   endelse
+  endfor
   for gencount=0,generations-1 do begin
+    ;if (gencount eq generations-1) then begin
+    ;   break;
+    ;endif
+    chi_squared_min_loc=minloc_idl(chi_squared,first=1)
+    population[0,*]=population[chi_squared_min_loc,*];
+    ;chi_squared[chi_squared_min_loc]=1.e30
+    for i=0,long(popsize*pressure)-1 do begin
+      chi_squared_min_loc=minloc_idl(chi_squared,first=1)
+      breed[i,*] = population[chi_squared_min_loc,*]
+      chi_squared[chi_squared_min_loc]=(long(popsize*pressure)-i+1)*1.e29
+      population[i,*]=population[chi_squared_min_loc,*];
+    endfor
+    ;for i=1, popsize - 1  do begin
+    for i=long(popsize*pressure), popsize - 1  do begin
+      ret=mgfit_init_seed()
+      random1 = randomu(seed, 2)
+      loc1=long((popsize*pressure-1)*random1[0])
+      loc2=long((popsize*pressure-1)*random1[1])
+;      population[i,*].peak=(breed[loc1,*].peak + breed[loc2,*].peak)/2.0
+      ;population[i,*].sigma1=(breed[loc1,*].sigma1 + breed[loc2,*].sigma1)/2.0
+;      population[i,*].resolution=(breed[loc1,*].resolution + breed[loc2,*].resolution)/2.0
+;      population[i,*].redshift=(breed[loc1,*].redshift + breed[loc2,*].redshift)/2.0
+;      population[i,*].sigma1=population[i,*].wavelength/population[i,*].resolution
+      
+      population[i,*].peak=breed[loc1,*].peak
+      ;population[i,*].sigma1=breed[loc1,*].sigma1
+      population[i,*].resolution=breed[loc1,*].resolution
+      population[i,*].redshift=breed[loc1,*].redshift
+      population[i,*].sigma1=population[i,*].wavelength/population[i,*].resolution
+    endfor
+    ;for popnumber=1,popsize-1 do begin
+    for popnumber=long(popsize*pressure),popsize-1 do begin
+      for lineid=0,nlines -1   do begin
+        sigma_tolerance1=(emissionlines[lineid].wavelength/resolution_initial)*(1.+resolution_tolerance_ratio)
+        ;population[popnumber,lineid].resolution = population[popnumber,lineid].resolution + 0.2*(mgfit_mutation1(level=0.5)-1.)*resolution_tolerance
+        ;population[popnumber,lineid].resolution = population[popnumber,lineid].resolution * (1.+0.05*resolution_tolerance*(mgfit_mutation1(level=0.5)-1.))
+        ;population[popnumber,lineid].resolution = population[popnumber,lineid].wavelength/emissionlines[lineid].sigma1
+        population[popnumber,lineid].sigma1 = population[popnumber,lineid].sigma1 * (1.+0.1*sigma_tolerance1*(mgfit_mutation1(level=0.5)-1.))
+        population[popnumber,lineid].resolution = population[popnumber,lineid].wavelength/emissionlines[lineid].sigma1
+        ;print,population[popnumber,lineid].resolution
+        if (abs(population[popnumber,lineid].resolution-resolution_initial) gt resolution_tolerance) then begin
+           population[popnumber,lineid].resolution = population[popnumber,lineid].wavelength/emissionlines[lineid].sigma1
+           population[popnumber,lineid].sigma1=emissionlines[lineid].sigma1
+        endif
+        ;ret=mgfit_init_seed()
+        ;population[popnumber,lineid].redshift = population[popnumber,lineid].redshift + 0.2*(mgfit_mutation1(level=0.5)-1.)*redshift_tolerance
+        population[popnumber,lineid].redshift = population[popnumber,lineid].redshift * (1.+0.1*redshift_tolerance*(mgfit_mutation1(level=0.5)-1.))
+        ;print,population[popnumber,lineid].redshift
+        if keyword_set(no_blueshift) then begin
+          if population[popnumber,lineid].redshift lt redshift_initial then begin
+             population[popnumber,lineid].redshift = redshift_initial
+          endif       
+        endif
+        if (abs(population[popnumber,lineid].redshift-redshift_initial) gt redshift_tolerance) then begin
+          population[popnumber,lineid].redshift = emissionlines[lineid].redshift
+        endif
+        ;ret=mgfit_init_seed()
+        population[popnumber,lineid].peak = population[popnumber,lineid].peak * (1.+0.05*(mgfit_mutation1(level=0.5)-1.))
+      endfor
+    endfor
     specsynth.flux[*]=0.0
     chi_squared[*]=0.0
     for popnumber=0,popsize-1 do begin
@@ -275,49 +359,8 @@ function mgfit_emis, specdata, redshift_initial, resolution_initial, emissionlin
 ;         chi_squared[popnumber]=total(deviates^2)/freedom_degree
 ;      endelse
     endfor
-    if (gencount eq generations-1) then begin
-       break;
-    endif
     chi_squared_min_loc=minloc_idl(chi_squared,first=1)
-    population[0,*]=population[chi_squared_min_loc,*];
-    chi_squared[chi_squared_min_loc]=1.e30
-    for i=0,long(popsize*pressure)-1 do begin
-      chi_squared_min_loc=minloc_idl(chi_squared,first=1)
-      breed[i,*] = population[chi_squared_min_loc,*]
-      chi_squared[chi_squared_min_loc]=1.e20
-    endfor
-    for i=1, popsize - 1  do begin
-      random1 = randomu(seed, 2)
-      loc1=long((popsize*pressure-1)*random1[0])
-      loc2=long((popsize*pressure-1)*random1[1])
-      population[i,*].peak=(breed[loc1,*].peak + breed[loc2,*].peak)/2.0
-      ;population[i,*].sigma1=(breed[loc1,*].sigma1 + breed[loc2,*].sigma1)/2.0
-      population[i,*].resolution=(breed[loc1,*].resolution + breed[loc2,*].resolution)/2.0
-      population[i,*].redshift=(breed[loc1,*].redshift + breed[loc2,*].redshift)/2.0
-      population[i,*].sigma1=population[i,*].wavelength/population[i,*].resolution
-    endfor
-    for popnumber=1,popsize-1 do begin
-      for lineid=0,nlines -1   do begin
-        population[popnumber,lineid].resolution = population[popnumber,lineid].resolution + ((mgfit_mutation1(level=0.05)-1.)*resolution_tolerance)
-        ;population[popnumber,lineid].resolution = population[popnumber,lineid].wavelength/emissionlines[lineid].sigma1
-        ;print,population[popnumber,lineid].resolution
-        if (abs(population[popnumber,lineid].resolution-resolution_initial) gt resolution_tolerance) then begin
-           population[popnumber,lineid].resolution = population[popnumber,lineid].wavelength/emissionlines[lineid].sigma1
-           population[popnumber,lineid].sigma1=emissionlines[lineid].sigma1
-        endif
-        population[popnumber,lineid].redshift = population[popnumber,lineid].redshift + ((mgfit_mutation1(level=0.05)-1.)*redshift_tolerance)
-        print,population[popnumber,lineid].redshift
-        if keyword_set(no_blueshift) then begin
-          if population[popnumber,lineid].redshift lt redshift_initial then begin
-             population[popnumber,lineid].redshift = redshift_initial
-          endif       
-        endif
-        if (abs(population[popnumber,lineid].redshift-redshift_initial) gt redshift_tolerance) then begin
-          population[popnumber,lineid].redshift = emissionlines[lineid].redshift
-        endif
-        population[popnumber,lineid].peak = population[popnumber,lineid].peak * (1.+0.5*(mgfit_mutation1(level=0.05)-1.))
-      endfor
-    endfor
+    ;print, chi_squared[chi_squared_min_loc]
     percentage = double(gencount+1)/double(generations)*100.0
     if percentage mod 20 eq 0 then print, "Percentage:", percentage
     if keyword_set(printgenerations) eq 1 and total(emissionlines.peak) ne 0 then begin 

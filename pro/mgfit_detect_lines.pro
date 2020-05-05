@@ -190,6 +190,7 @@ function mgfit_detect_lines, wavelength, flux, deepline_data, strongline_data, $
                                                   resolution_tolerance=resolution_tolerance, $
                                                   resolution_min=resolution_min, $
                                                   resolution_max=resolution_max, $
+                                                  ;/printgenerations, /no_mpfit, $
                                                   image_output_path=image_output_path)
 
   stron_line_save_file=output_path+'save_strong_line_list.txt'

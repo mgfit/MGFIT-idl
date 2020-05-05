@@ -36,11 +36,12 @@ function mgfit_mutation1, level=level
 ;     20/07/2014, A. Danehkar, Translated to IDL from FORTRAN 
 ;                 in ALFA by R. Wessson
 ;- 
-  common random_seed, seed
+  ;common random_seed, seed
   if keyword_set(level) eq 0 then begin
     level=0.05
   endif
   value=1.0
+  ret=mgfit_init_seed()
   random = randomu(seed)
   if (random le level) then begin
     value=1.*random

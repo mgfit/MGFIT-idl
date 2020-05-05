@@ -275,7 +275,7 @@ function mgfit_detect_strong_lines, wavelength, flux, strongline_data, $
       ;redshift_initial0 = emissionlines_section[strong_line].redshift
       ;redshift_initial=redshift_initial0
       if strong_line[0] ne -1 then begin
-        redshift_initial=emissionlines_section[strong_line].redshift
+        ;redshift_initial=emissionlines_section[strong_line].redshift
         if nlines gt 1 then begin
           strong_emissionlines[linearraypos:linearraypos+nlines-1]=emissionlines_section
         endif else begin
