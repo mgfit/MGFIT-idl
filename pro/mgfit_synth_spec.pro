@@ -71,8 +71,8 @@ function mgfit_synth_spec, lines, spec, continuum=continuum
     location = where(abs(lines[i].redshift*lines[i].wavelength - spec.wavelength) lt (5.*lines[i].wavelength/lines[i].resolution))
     temp=size(location,/DIMENSIONS)
     if temp[0] gt 0 and lines[i].sigma1 ne 0 then begin
-      ;spec[location].flux = spec[location].flux + lines[i].peak*exp((-(spec[location].wavelength-lines[i].redshift*lines[i].wavelength)^2)/(2*(lines[i].sigma1)^2))
-      spec[location].flux = spec[location].flux + lines[i].peak*exp((-(spec[location].wavelength-lines[i].redshift*lines[i].wavelength)^2.)/(2.*(lines[i].wavelength/lines[i].resolution)^2.))
+      spec[location].flux = spec[location].flux + lines[i].peak*exp((-(spec[location].wavelength-lines[i].redshift*lines[i].wavelength)^2.)/(2.*(lines[i].sigma1)^2.))
+      ;spec[location].flux = spec[location].flux + lines[i].peak*exp((-(spec[location].wavelength-lines[i].redshift*lines[i].wavelength)^2.)/(2.*(lines[i].wavelength/lines[i].resolution)^2.))
       if keyword_set(continuum) then begin
         spec[location].flux = spec[location].flux +  lines[i].continuum
       endif

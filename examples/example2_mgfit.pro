@@ -51,11 +51,11 @@ interval_wavelength=2000
 ; redshift initial and tolerance
 redshift_initial = 1.0
 redshift_tolerance=0.001
-; spectral resolution initial and tolerance
-resolution_initial=12000
-resolution_tolerance=0.02*resolution_initial
-resolution_min=6000.0
-resolution_max=30000.0
+; initial FWHM and tolerance
+fwhm_initial=1.0
+fwhm_tolerance=0.8;*fwhm_initial
+fwhm_min=0.1
+fwhm_max=1.8
 
 read1dspecascii, input_file, wavel, flux
 
@@ -65,9 +65,9 @@ emissionlines = mgfit_detect_lines(wavel, flux, deepline_data, strongline_data, 
                                    interval_wavelength=interval_wavelength, $
                                    redshift_initial=redshift_initial, $
                                    redshift_tolerance=redshift_tolerance, $
-                                   resolution_initial=resolution_initial, $
-                                   resolution_tolerance=resolution_tolerance, $
-                                   resolution_min=resolution_min, resolution_max=resolution_max, $
+                                   fwhm_initial=fwhm_initial, $
+                                   fwhm_tolerance=fwhm_tolerance, $
+                                   fwhm_min=fwhm_min, fwhm_max=fwhm_max, $
                                    image_output_path=image_output_path, output_path=output_path, /auto_line_array_size)
 
 end

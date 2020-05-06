@@ -6,12 +6,13 @@ function mgfit_detect_strong_lines, wavelength, flux, strongline_data, $
                                     interval_wavelength=interval_wavelength, $
                                     redshift_initial=redshift_initial, $
                                     redshift_tolerance=redshift_tolerance, $
-                                    resolution_initial=resolution_initial, $
-                                    resolution_tolerance=resolution_tolerance, $
-                                    resolution_min=resolution_min, resolution_max=resolution_max, $
+                                    fwhm_initial=fwhm_initial, $
+                                    fwhm_tolerance=fwhm_tolerance, $
+                                    fwhm_min=fwhm_min, fwhm_max=fwhm_max, $
                                     auto_line_array_size=auto_line_array_size, $
                                     image_output_path=image_output_path, $
-                                    printgenerations=printgenerations, no_mpfit=no_mpfit
+                                    printgenerations=printgenerations, $
+                                    no_mpfit=no_mpfit, no_blueshift=no_blueshift
 ;+
 ;     This function detects lines from the strong line list.
 ;
@@ -60,17 +61,17 @@ function mgfit_detect_strong_lines, wavelength, flux, strongline_data, $
 ;     redshift_tolerance   :    in, optional, type=float
 ;                               the redshift tolerance in the emission line fitting
 ;
-;     resolution_initial   :    in, optional, type=float
-;                               the initial spectral resolution in the first iteration
+;     fwhm_initial         :    in, optional, type=float
+;                               the initial FWHM in the first iteration
 ;
-;     resolution_tolerance   :    in, optional, type=float
-;                               the resolution tolerance in the emission line fitting
+;     fwhm_tolerance       :    in, optional, type=float
+;                               the FWHM tolerance rin the emission line fitting
 ;
-;     resolution_min       :    in, optional, type=float
-;                               the lower tolerant limit of the resolution in the emission line fitting
+;     fwhm_min             :    in, optional, type=float
+;                               the lower FWHM limit of the resolution in the emission line fitting
 ;
-;     resolution_max       :    in, optional, type=float
-;                               the upper tolerant limit of the resolution in the emission line fitting
+;     fwhm_max             :    in, optional, type=float
+;                               the upper FWHM limit of the resolution in the emission line fitting
 ;
 ;     auto_line_array_size :    in, not required, type=boolean
 ;                               automatically determine the line array size for the internal usage
@@ -81,8 +82,11 @@ function mgfit_detect_strong_lines, wavelength, flux, strongline_data, $
 ;     printgenerations :    in, optional, type=string
 ;                                Set to produce plots in all generations 
 ; 
-;     no_mpfit           :     in, required, type=boolean
-;                              Do not use MPFIT to initialize the seed
+;     no_mpfit              :     in, required, type=boolean
+;                                 Do not use MPFIT to initialize the seed
+;
+;     no_blueshift          :     in, required, type=boolean
+;                                 Forbid the blueshift      
 ;   
 ; :Examples:
 ;    For example::
@@ -139,14 +143,14 @@ function mgfit_detect_strong_lines, wavelength, flux, strongline_data, $
   if keyword_set(redshift_tolerance) eq 0 then begin
     redshift_tolerance = 0.001
   endif 
-  if keyword_set(resolution_tolerance) eq 0 then begin
-    resolution_tolerance = 0.1 *resolution_initial
+  if keyword_set(fwhm_tolerance) eq 0 then begin
+    fwhm_tolerance = 0.1 *fwhm_initial
   endif 
-  if keyword_set(resolution_min) eq 0 then begin
-    resolution_min = 6000.0
+  if keyword_set(fwhm_min) eq 0 then begin
+    fwhm_min = 0.1
   endif 
-  if keyword_set(resolution_max) eq 0 then begin
-    resolution_max = 30000.0
+  if keyword_set(fwhm_max) eq 0 then begin
+    fwhm_max = 1.0
   endif
   temp=size(wavelength,/DIMENSIONS)
   speclength=temp[0]
@@ -157,8 +161,8 @@ function mgfit_detect_strong_lines, wavelength, flux, strongline_data, $
   temp=size(spectrumdata,/DIMENSIONS)
   spectrumdata_len=temp[0]
   ; calculate resolution based on the nyquist sampling rate
-  if keyword_set(resolution_initial) eq 0 then begin
-    resolution_initial=2*spectrumdata[2].wavelength/(spectrumdata[3].wavelength-spectrumdata[1].wavelength)
+  if keyword_set(fwhm_initial) eq 0 then begin
+    fwhm_initial=2.355*(spectrumdata[3].wavelength-spectrumdata[1].wavelength)/2.;2*spectrumdata[2].wavelength/(spectrumdata[3].wavelength-spectrumdata[1].wavelength)
   endif 
   
   ; detect the strong lines
@@ -256,19 +260,19 @@ function mgfit_detect_strong_lines, wavelength, flux, strongline_data, $
     if (nlines gt 0) then begin
       ;imagename=output_path+'images/strong'+strtrim(string(iw/step1+1),2)+'.eps'
       if keyword_set(auto_line_array_size) eq 0 then begin
-        emissionlines_section = mgfit_emis(spec_section, redshift_initial, resolution_initial, $
-          emissionlines_section, redshift_tolerance, resolution_tolerance, $
-          resolution_min, resolution_max, $
+        emissionlines_section = mgfit_emis(spec_section, redshift_initial, fwhm_initial, $
+          emissionlines_section, redshift_tolerance, fwhm_tolerance, $
+          fwhm_min, fwhm_max, $
           generations, popsize, pressure, line_array_size=linelocation0_step, $
           image_output_path=image_output_path, printgenerations=printgenerations, $
-          no_mpfit=no_mpfit)
+          no_blueshift=no_blueshift, no_mpfit=no_mpfit)
       endif else begin
-        emissionlines_section = mgfit_emis(spec_section, redshift_initial, resolution_initial, $
-          emissionlines_section, redshift_tolerance, resolution_tolerance, $
-          resolution_min, resolution_max, $
+        emissionlines_section = mgfit_emis(spec_section, redshift_initial, fwhm_initial, $
+          emissionlines_section, redshift_tolerance, fwhm_tolerance, $
+          fwhm_min, fwhm_max, $
           generations, popsize, pressure, $; , line_array_size=linelocation0_step, $   
           image_output_path=image_output_path, printgenerations=printgenerations, $
-          no_mpfit=no_mpfit)
+          no_blueshift=no_blueshift, no_mpfit=no_mpfit)
       endelse
 
       strong_line=min(where(emissionlines_section.flux eq max(emissionlines_section.flux)))

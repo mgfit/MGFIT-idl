@@ -128,15 +128,15 @@ You need to specify the genetic algorithm settings::
     pressure=0.3
     generations=500.
 
-and use the appropriate fitting settings such as the wavelength interval, the redshift, and the spectral resolution::
+and use the appropriate fitting settings such as the wavelength interval, the redshift, and the spectral FWHM::
 
     interval_wavelength=500
     redshift_initial = 1.0
     redshift_tolerance=0.001
-    resolution_initial=12000
-    resolution_tolerance=0.9*resolution_initial
-    resolution_min=6000.0
-    resolution_max=30000.0
+    fwhm_initial=1.0
+    fwhm_tolerance=1.4
+    fwhm_min=0.1
+    fwhm_max=1.8
 
 Now you run the MGFIT main function as follows::
 
@@ -145,10 +145,10 @@ Now you run the MGFIT main function as follows::
                                        generations=generations, $
                                        interval_wavelength=interval_wavelength, $
                                        redshift_initial=redshift_initial, $
-                                       redshift_tolerance=redshift_tolerance1, $
-                                       resolution_initial=resolution_initial, $
-                                       resolution_tolerance=resolution_tolerance1, $
-                                       resolution_min=resolution_min, resolution_max=resolution_max, $
+                                       redshift_tolerance=redshift_tolerance, $
+                                       fwhm_initial=fwhm_initial, $
+                                       fwhm_tolerance=fwhm_tolerance, $
+                                       fwhm_min=fwhm_min, fwhm_max=fwhm_max, $
                                        image_output_path=image_output_path, output_path=output_path)
 
 It will take a while to identify lines and fit Gaussian curves. You need to check the images of fitted lines stored in the image folder to remove some misidentified lines manually from the final list.
@@ -179,7 +179,7 @@ Notes
 
 * To get better results, you should use a higher number of generations or/and a higher number of populations, which will increase the computational time, but will result in better fitted lines. 
 
-* You need to adjust the resolution parameters according to the spectral resolution of your observations.
+* You need to adjust the FWHM parameters according to the spectral resolution of your observations.
 
 * You need to change the redshift parameters for high redshift sources. 
 

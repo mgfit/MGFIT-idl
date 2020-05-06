@@ -1,8 +1,8 @@
 ; docformat = 'rst'
 
-function mgfit_emis, specdata, redshift_initial, resolution_initial, emissionlines, $
-                     redshift_tolerance, resolution_tolerance, $
-                     resolution_min, resolution_max,$
+function mgfit_emis, specdata, redshift_initial, fwhm_initial, emissionlines, $
+                     redshift_tolerance, fwhm_tolerance, $
+                     fwhm_min, fwhm_max,$
                      generations, popsize, pressure, line_array_size=line_array_size, $
                      no_blueshift=no_blueshift, printimage=printimage, $
                      imagename=imagename, image_output_path=image_output_path, $
@@ -40,9 +40,11 @@ function mgfit_emis, specdata, redshift_initial, resolution_initial, emissionlin
 ;     printgenerations :    in, optional, type=string
 ;                                Set to produce plots in all generations 
 ; 
-;     no_mpfit           :     in, required, type=boolean
-;                              Do not use MPFIT to initialize the seed
-;                           
+;     no_mpfit              :     in, required, type=boolean
+;                                 Do not use MPFIT to initialize the seed
+;
+;     no_blueshift          :     in, required, type=boolean
+;                                 Forbid the blueshift                    
 ;
 ; :Params:
 ;     specdata           :     in, required, type=arrays of structures
@@ -52,7 +54,7 @@ function mgfit_emis, specdata, redshift_initial, resolution_initial, emissionlin
 ;     redshift_initial   :     in, required, type=float   
 ;                              the initial/guess redshift
 ;     
-;     resolution_initial :     the initial/guess spectral resolution
+;     fwhm_initial :     the initial/guess spectral resolution
 ;     
 ;     emissionlines      :     in, required, type=arrays of structures    
 ;                              the specified emission lines stored in
@@ -76,7 +78,7 @@ function mgfit_emis, specdata, redshift_initial, resolution_initial, emissionlin
 ;     redshift_tolerance   :    in, required, type=float  
 ;                               the redshift tolerance
 ;     
-;     resolution_tolerance :    in, required, type=float  
+;     fwhm_tolerance :    in, required, type=float  
 ;                               the spectral resolution tolerance
 ;     
 ;     generations          :    in, required, type=float   
@@ -91,8 +93,8 @@ function mgfit_emis, specdata, redshift_initial, resolution_initial, emissionlin
 ; :Examples:
 ;    For example::
 ;
-;     IDL> fitstronglines = mgfit_emis(stronglines, redshift_initial, resolution_initial, $
-;     IDL>                            emissionlines, redshift_tolerance, resolution_tolerance, $
+;     IDL> fitstronglines = mgfit_emis(stronglines, redshift_initial, fwhm_initial, $
+;     IDL>                            emissionlines, redshift_tolerance, fwhm_tolerance, $
 ;     IDL>                            generations, popsize, pressure, line_array_size=linelocation0_step)
 ;
 ; :Categories:
@@ -173,7 +175,7 @@ function mgfit_emis, specdata, redshift_initial, resolution_initial, emissionlin
     return, emissionlines ; cannot find lines!
   endif
   linelocation0_step_h=long(linelocation0_step/4)
-  resolution_tolerance_ratio=resolution_tolerance/resolution_initial
+  fwhm_tolerance_ratio=fwhm_tolerance/fwhm_initial
   for i=0, nlines-1 do begin
       linelocation0 = where(specdata1.wavelength gt redshift_initial*emissionlines[i].wavelength)
       linelocation=min(linelocation0)
@@ -198,19 +200,23 @@ function mgfit_emis, specdata, redshift_initial, resolution_initial, emissionlin
       ;a[1] Peak Centroid 
       ;a[2] Gaussian Sigma
       ;sigma_tolerance1=(emissionlines[i].wavelength/resolution_initial)+(emissionlines[i].wavelength/resolution_tolerance)
-      sigma_tolerance1=(emissionlines[i].wavelength/resolution_initial)*(1.+resolution_tolerance_ratio)
-      peak1=a[0]
-      centroid1=a[1]
-      sigma1=a[2]
-      if (abs(sigma1) gt sigma_tolerance1) then begin
-        sigma1 = emissionlines[i].wavelength/resolution_initial
-      endif
+      sigma_tolerance1=fwhm_initial*fwhm_tolerance_ratio;(emissionlines[i].wavelength/resolution_initial)*(1.+resolution_tolerance_ratio)
+      if (finite(yfit[0]) ne 0) then begin
+        peak1=a[0]
+        centroid1=a[1]
+        sigma1=a[2]
+        if (abs(sigma1) gt sigma_tolerance1) then begin
+          sigma1 = fwhm_initial/2.355;emissionlines[i].wavelength/resolution_initial
+        endif
+      endif else begin
+        a=0
+      endelse
       ;if peak1 le 0 then begin
       ;  peak1=0
       ;  centroid1=emissionlines[i].wavelength
       ;  sigma1=(emissionlines[i].wavelength/resolution_initial)
       ;endif
-      if a[0] gt 0 and keyword_set(no_mpfit) eq 0 then begin
+      if (finite(yfit[0]) ne 0) and (a[0] gt 0) and (keyword_set(no_mpfit) eq 0) then begin
         emissionlines[i].peak=peak1
         emissionlines[i].sigma1=sigma1
         emissionlines[i].resolution=emissionlines[i].wavelength/emissionlines[i].sigma1
@@ -223,8 +229,8 @@ function mgfit_emis, specdata, redshift_initial, resolution_initial, emissionlin
         emissionlines[i].continuum=cont1
       end else begin
         emissionlines[i].peak=1.0
-        emissionlines[i].sigma1=emissionlines[i].wavelength/resolution_initial
-        emissionlines[i].resolution=resolution_initial
+        emissionlines[i].sigma1=fwhm_initial/2.355 ;emissionlines[i].wavelength/resolution_initial
+        emissionlines[i].resolution=emissionlines[i].wavelength/emissionlines[i].sigma1 ;resolution_initial
         emissionlines[i].redshift=redshift_initial
         if keyword_set(no_blueshift) then begin
           if emissionlines[i].redshift lt redshift_initial then begin
@@ -236,7 +242,7 @@ function mgfit_emis, specdata, redshift_initial, resolution_initial, emissionlin
   endfor
   sigma1=mean(emissionlines[*].sigma1)
   wavelength1=mean(emissionlines[0].wavelength)
-  resolution_initial=wavelength1/sigma1
+  fwhm_initial=sigma1 * 2.355;wavelength1/sigma1
   for i=0, popsize-1 do begin 
     specsynth[*,i].wavelength=specdata1.wavelength
     if nlines gt 1 then begin
@@ -311,17 +317,18 @@ function mgfit_emis, specdata, redshift_initial, resolution_initial, emissionlin
       population[i,*].redshift=breed[loc1,*].redshift
       population[i,*].sigma1=population[i,*].wavelength/population[i,*].resolution
     endfor
-    ;for popnumber=1,popsize-1 do begin
-    for popnumber=long(popsize*pressure),popsize-1 do begin
+    for popnumber=1,popsize-1 do begin
+    ;for popnumber=long(popsize*pressure),popsize-1 do begin
       for lineid=0,nlines -1   do begin
-        sigma_tolerance1=(emissionlines[lineid].wavelength/resolution_initial)*(1.+resolution_tolerance_ratio)
+        sigma_tolerance1=fwhm_initial*fwhm_tolerance_ratio
+        ;sigma_tolerance1=(emissionlines[lineid].wavelength/resolution_initial)*(1.+resolution_tolerance_ratio)
         ;population[popnumber,lineid].resolution = population[popnumber,lineid].resolution + 0.2*(mgfit_mutation1(level=0.5)-1.)*resolution_tolerance
         ;population[popnumber,lineid].resolution = population[popnumber,lineid].resolution * (1.+0.05*resolution_tolerance*(mgfit_mutation1(level=0.5)-1.))
         ;population[popnumber,lineid].resolution = population[popnumber,lineid].wavelength/emissionlines[lineid].sigma1
         population[popnumber,lineid].sigma1 = population[popnumber,lineid].sigma1 * (1.+0.1*sigma_tolerance1*(mgfit_mutation1(level=0.5)-1.))
-        population[popnumber,lineid].resolution = population[popnumber,lineid].wavelength/emissionlines[lineid].sigma1
+        population[popnumber,lineid].resolution = population[popnumber,lineid].wavelength/population[popnumber,lineid].sigma1
         ;print,population[popnumber,lineid].resolution
-        if (abs(population[popnumber,lineid].resolution-resolution_initial) gt resolution_tolerance) then begin
+        if (abs(2.355*population[popnumber,lineid].sigma1-fwhm_initial) gt fwhm_tolerance) then begin
            population[popnumber,lineid].resolution = population[popnumber,lineid].wavelength/emissionlines[lineid].sigma1
            population[popnumber,lineid].sigma1=emissionlines[lineid].sigma1
         endif
@@ -338,7 +345,7 @@ function mgfit_emis, specdata, redshift_initial, resolution_initial, emissionlin
           population[popnumber,lineid].redshift = emissionlines[lineid].redshift
         endif
         ;ret=mgfit_init_seed()
-        population[popnumber,lineid].peak = population[popnumber,lineid].peak * (1.+0.05*(mgfit_mutation1(level=0.5)-1.))
+        population[popnumber,lineid].peak = population[popnumber,lineid].peak * (1.+0.1*(mgfit_mutation1(level=0.5)-1.))
       endfor
     endfor
     specsynth.flux[*]=0.0
@@ -413,7 +420,7 @@ function mgfit_emis, specdata, redshift_initial, resolution_initial, emissionlin
     emissionlines[lineid].resolution=population[chi_squared_min_loc,lineid].resolution
     emissionlines[lineid].blended=population[chi_squared_min_loc,lineid].blended
   endfor
-  non_physical_loc=where(emissionlines.resolution lt resolution_min or emissionlines.resolution gt resolution_max)
+  non_physical_loc=where(2.355*emissionlines.sigma1 lt fwhm_min or 2.355*emissionlines.sigma1 gt fwhm_max)
   if non_physical_loc[0] ne -1 then begin
     emissionlines[non_physical_loc].peak=0.0
     emissionlines[non_physical_loc].sigma1=0.0
@@ -441,8 +448,9 @@ function mgfit_emis, specdata, redshift_initial, resolution_initial, emissionlin
   ; estimate uncertainties
   if max(emissionlines.peak) ne 0 then begin
     emissionlines=mgfit_emis_err(specsynth_best, specdata1, emissionlines, redshift_initial)
-  endif 
-  emissionlines.sigma1=emissionlines.wavelength/emissionlines.resolution
+  endif
+  loc1=where(emissionlines.sigma1 ne 0.0)
+  emissionlines[loc1].resolution=emissionlines[loc1].wavelength/emissionlines[loc1].sigma1
   emissionlines.peak = emissionlines.peak / specscale
   emissionlines.uncertainty = emissionlines.uncertainty / specscale
   specdata1.flux = specdata1.flux / specscale
