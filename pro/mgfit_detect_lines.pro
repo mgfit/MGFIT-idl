@@ -199,7 +199,7 @@ function mgfit_detect_lines, wavelength, flux, deepline_data, strongline_data, $
                                                   fwhm_tolerance=fwhm_tolerance, $
                                                   fwhm_min=fwhm_min, $
                                                   fwhm_max=fwhm_max, $
-                                                  ;/printgenerations, 
+                                                  ;/printgenerations, $
                                                   no_blueshift=no_blueshift, no_mpfit=no_mpfit, $
                                                   image_output_path=image_output_path)
 
