@@ -151,6 +151,21 @@ Now you run the MGFIT main function as follows::
                                        fwhm_min=fwhm_min, fwhm_max=fwhm_max, $
                                        image_output_path=image_output_path, output_path=output_path)
 
+Alternatively, you could load the **mgfit** object class, which automatically loads the line list database as follows::
+
+    mg=obj_new('mgfit')
+    mg->set_output_path, output_path
+    mg->set_image_output_path, image_output_path
+    emissionlines = mg->detect_lines(wavel, flux, $
+                                     popsize=popsize, pressure=pressure, $
+                                     generations=generations, $
+                                     interval_wavelength=interval_wavelength, $
+                                     redshift_initial=redshift_initial, $
+                                     redshift_tolerance=redshift_tolerance, $
+                                     fwhm_initial=fwhm_initial, $
+                                     fwhm_tolerance=fwhm_tolerance, $
+                                     fwhm_min=fwhm_min, fwhm_max=fwhm_max)
+
 It will take a while to identify lines and fit Gaussian curves. You need to check the images of fitted lines stored in the image folder to remove some misidentified lines manually from the final list.
 
 .. image:: https://raw.githubusercontent.com/mgfit/MGFIT-idl/master/examples/example2/images/plot_4431_4440.jpg

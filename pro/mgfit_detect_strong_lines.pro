@@ -134,15 +134,18 @@ function mgfit_detect_strong_lines, wavelength, flux, strongline_data, $
   if keyword_set(generations) eq 0 then begin
     generations=500.
   endif
-  if keyword_set(redshift_initial) eq 0 then begin
-    redshift_initial = 1.0
-  endif
   if keyword_set(interval_wavelength) eq 0 then begin
     interval_wavelength = 500
+  endif
+  if keyword_set(redshift_initial) eq 0 then begin
+    redshift_initial = 1.0
   endif
   if keyword_set(redshift_tolerance) eq 0 then begin
     redshift_tolerance = 0.001
   endif 
+  if keyword_set(fwhm_initial) eq 0 then begin
+    fwhm_initial = 1.0
+  endif
   if keyword_set(fwhm_tolerance) eq 0 then begin
     fwhm_tolerance = 0.1 *fwhm_initial
   endif 
