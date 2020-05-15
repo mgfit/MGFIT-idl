@@ -50,6 +50,7 @@ function mgfit_emis_err_ut::test_basic
   speclength_new=rebin_resolution*speclength
   wavel_new = interpolate(wavel, (double(speclength)-1.)/(double(speclength_new)-1.) * findgen(speclength_new))
   flux_new = interpolate(flux, (double(speclength)-1.)/(double(speclength_new)-1.) * findgen(speclength_new))
+  speclength=speclength_new
   wavel=wavel_new
   flux=flux_new
   spectrumdata=mgfit_init_spec(wavel, flux)

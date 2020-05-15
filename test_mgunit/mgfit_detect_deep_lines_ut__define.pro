@@ -69,7 +69,8 @@ function mgfit_detect_deep_lines_ut::test_basic
   loc1=where(strong_emissionlines.flux ne 0)
   fwhm_min2=2.355*min(strong_emissionlines[loc1].sigma1)*0.6
   fwhm_max2=2.355*max(strong_emissionlines[loc1].sigma1)*1.4
-  fwhm_tolerance2=fwhm_max2;-fwhm_min2  emissionlines = mgfit_detect_deep_lines(wavel, flux, deepline_data, $
+  fwhm_tolerance2=fwhm_max2;-fwhm_min2  
+  emissionlines = mgfit_detect_deep_lines(wavel, flux, deepline_data, $
                                           strong_emissionlines, strongline_data, $
                                           popsize=popsize, pressure=pressure, $
                                           generations=generations, $

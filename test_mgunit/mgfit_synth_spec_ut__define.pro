@@ -44,14 +44,7 @@ function mgfit_synth_spec_ut::test_basic
   speclength=temp[0]
   wavelength_min=wavel[0]
   wavelength_max=wavel[speclength-1]
-  rebin_resolution = 10
-  temp=size(wavel,/DIMENSIONS)
-  speclength=temp[0]
-  speclength_new=rebin_resolution*speclength
-  wavel_new = interpolate(wavel, (double(speclength)-1.)/(double(speclength_new)-1.) * findgen(speclength_new))
-  flux_new = interpolate(flux, (double(speclength)-1.)/(double(speclength_new)-1.) * findgen(speclength_new))
-  wavel=wavel_new
-  flux=flux_new
+  
   spectrumdata=mgfit_init_spec(wavel, flux)
 
   emissionlines_section=mgfit_init_fltr_emis(strongline_data, wavelength_min, wavelength_max, redshift_initial)
