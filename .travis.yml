@@ -24,6 +24,6 @@ before_install:
 install:
 - export GDL_STARTUP=/home/travis/build/mgfit/MGFIT-idl/test_travis/.gdl_startup
 
-script:
-- gdl -e @test_travis/test_mgfit_gdl.pro
+#script:
+#- gdl -e @test_travis/test_mgfit_gdl.pro  # required GDL 0.9.9 or higher
 
