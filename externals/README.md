@@ -8,3 +8,5 @@ The respective copyrights, restrictions and disclaimers of the original librarie
 * ./astron/: external library from the [IDL Astronomy User's library](http://idlastro.gsfc.nasa.gov/homepage.html)
 * ./coyote/: external library from the [Coyote Graphics Library](http://www.idlcoyote.com/documents/programs.php)
 * ./mpfit/: required routines from the [MPFIT IDL Library](http://cow.physics.wisc.edu/~craigm/idl/cmpfit.html) 
+* ./texttoidl/: required routines from the [TextoIDL Library](http://physics.mnstate.edu/craig/textoidl/)
+

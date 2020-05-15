@@ -3,6 +3,7 @@
 function mgfit_detect_strong_lines, wavelength, flux, strongline_data, $
                                     popsize=popsize, pressure=pressure, $
                                     generations=generations, $
+                                    rebin_resolution=rebin_resolution, $
                                     interval_wavelength=interval_wavelength, $
                                     redshift_initial=redshift_initial, $
                                     redshift_tolerance=redshift_tolerance, $
@@ -51,6 +52,10 @@ function mgfit_detect_strong_lines, wavelength, flux, strongline_data, $
 ;
 ;     generations          :    in, optional, type=float
 ;                               the maximum generation number in the genetic algorithm
+;
+;     rebin_resolution     :    in, optional, type=float
+;                               increase the spectrum resolution by rebinning 
+;                               resolution by rebin_resolution times
 ; 
 ;     interval_wavelength  :    in, optional, type=float
 ;                               the wavelength interval used in each iteration
@@ -268,14 +273,14 @@ function mgfit_detect_strong_lines, wavelength, flux, strongline_data, $
           fwhm_min, fwhm_max, $
           generations, popsize, pressure, line_array_size=linelocation0_step, $
           image_output_path=image_output_path, printgenerations=printgenerations, $
-          no_blueshift=no_blueshift, no_mpfit=no_mpfit)
+          no_blueshift=no_blueshift, no_mpfit=no_mpfit, rebin_resolution=rebin_resolution)
       endif else begin
         emissionlines_section = mgfit_emis(spec_section, redshift_initial, fwhm_initial, $
           emissionlines_section, redshift_tolerance, fwhm_tolerance, $
           fwhm_min, fwhm_max, $
           generations, popsize, pressure, $; , line_array_size=linelocation0_step, $   
           image_output_path=image_output_path, printgenerations=printgenerations, $
-          no_blueshift=no_blueshift, no_mpfit=no_mpfit)
+          no_blueshift=no_blueshift, no_mpfit=no_mpfit, rebin_resolution=rebin_resolution)
       endelse
 
       strong_line=min(where(emissionlines_section.flux eq max(emissionlines_section.flux)))

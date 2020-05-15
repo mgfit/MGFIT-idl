@@ -33,33 +33,43 @@ function mgfit_detect_deep_lines_ut::test_basic
   ; redshift initial and tolerance
   redshift_initial = 1.0
   redshift_tolerance=0.001
-  ; spectral resolution initial and tolerance
-  resolution_initial=12000
-  resolution_tolerance=0.9*resolution_initial
-  resolution_min=6000.0
-  resolution_max=30000.0
-  
+  ; initial FWHM and tolerance
+  fwhm_initial=1.0
+  fwhm_tolerance=1.4;*fwhm_initial
+  fwhm_min=0.1
+  fwhm_max=1.8
+  rebin_resolution = 10
+  temp=size(wavel,/DIMENSIONS)
+  speclength=temp[0]
+  speclength_new=rebin_resolution*speclength
+  wavel_new = interpolate(wavel, (double(speclength)-1.)/(double(speclength_new)-1.) * findgen(speclength_new))
+  flux_new = interpolate(flux, (double(speclength)-1.)/(double(speclength_new)-1.) * findgen(speclength_new))
+  wavel=wavel_new
+  flux=flux_new
   strong_emissionlines = mgfit_detect_strong_lines(wavel, flux, strongline_data, $
                                                   popsize=popsize, pressure=pressure, $
                                                   generations=generations, $
                                                   interval_wavelength=interval_wavelength, $
                                                   redshift_initial=redshift_initial, $
                                                   redshift_tolerance=redshift_tolerance, $
-                                                  resolution_initial=resolution_initial, $
-                                                  resolution_tolerance=resolution_tolerance, $
-                                                  resolution_min=resolution_min, $
-                                                  resolution_max=resolution_max, $
+                                                  fwhm_initial=fwhm_initial, $
+                                                  fwhm_tolerance=fwhm_tolerance, $
+                                                  fwhm_min=fwhm_min, fwhm_max=fwhm_max, $
                                                   image_output_path=image_output_path)
 
   strong_line=min(where(strong_emissionlines.flux eq max(strong_emissionlines.flux)))
   redshift_initial_overall = strong_emissionlines[strong_line].redshift
   redshift_initial=strong_emissionlines[strong_line].redshift
   redshift_strongline=redshift_initial
-  resolution_initial=strong_emissionlines[strong_line].resolution
-  resolution_strongline=resolution_initial
-  ;resolution_tolerance1=0.02*resolution_initial;0.001*resolution_initial;0.02*resolution_initial;0.02*
-  resolution_tolerance2=0.02*resolution_initial;0.001*resolution_initial;0.0001*resolution_initial;0.01*resolution_initial;0.01*500;500.
-  emissionlines = mgfit_detect_deep_lines(wavel, flux, deepline_data, $
+  fwhm_initial=2.355*strong_emissionlines[strong_line].sigma1
+  fwhm_strongline=fwhm_initial
+  ;fwhm_tolerance1=0.02*fwhm_initial;0.001*fwhm_initial;0.02*fwhm_initial;0.02*
+  ;fwhm_tolerance2=0.02*fwhm_initial;0.001*fwhm_initial;0.0001*fwhm_initial;0.01*fwhm_initial;0.01*500;500.
+  fwhm_tolerance2=fwhm_tolerance;*fwhm_initial
+  loc1=where(strong_emissionlines.flux ne 0)
+  fwhm_min2=2.355*min(strong_emissionlines[loc1].sigma1)*0.6
+  fwhm_max2=2.355*max(strong_emissionlines[loc1].sigma1)*1.4
+  fwhm_tolerance2=fwhm_max2;-fwhm_min2  emissionlines = mgfit_detect_deep_lines(wavel, flux, deepline_data, $
                                           strong_emissionlines, strongline_data, $
                                           popsize=popsize, pressure=pressure, $
                                           generations=generations, $
@@ -67,10 +77,10 @@ function mgfit_detect_deep_lines_ut::test_basic
                                           redshift_initial=redshift_initial, $
                                           redshift_strongline=redshift_strongline, $
                                           redshift_tolerance=redshift_tolerance2, $
-                                          resolution_initial=resolution_initial, $
-                                          resolution_strongline=resolution_strongline, $
-                                          resolution_tolerance=resolution_tolerance2, $
-                                          resolution_min=resolution_min, resolution_max=resolution_max, $
+                                          fwhm_initial=fwhm_initial, $
+                                          fwhm_strongline=fwhm_strongline, $
+                                          fwhm_tolerance=fwhm_tolerance2, $
+                                          fwhm_min=fwhm_min2, fwhm_max=fwhm_max2, $
                                           image_output_path=image_output_path)
   
   temp=size(emissionlines,/DIMENSIONS)

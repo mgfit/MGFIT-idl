@@ -195,6 +195,7 @@ function mgfit_detect_lines, wavelength, flux, deepline_data, strongline_data, $
   strong_emissionlines = mgfit_detect_strong_lines(wavelength, flux, strongline_data, $
                                                   popsize=popsize, pressure=pressure, $
                                                   generations=generations, $
+                                                  rebin_resolution=rebin_resolution, $
                                                   interval_wavelength=interval_wavelength, $
                                                   redshift_initial=redshift_initial, $
                                                   redshift_tolerance=redshift_tolerance, $
@@ -248,6 +249,7 @@ function mgfit_detect_lines, wavelength, flux, deepline_data, strongline_data, $
                                           strong_emissionlines, strongline_data, $
                                           popsize=popsize, pressure=pressure, $
                                           generations=generations, $
+                                          rebin_resolution=rebin_resolution, $
                                           interval_wavelength=interval_wavelength, $
                                           redshift_initial=redshift_initial, $
                                           redshift_strongline=redshift_strongline, $

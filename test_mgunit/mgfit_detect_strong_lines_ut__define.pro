@@ -33,22 +33,28 @@ function mgfit_detect_strong_lines_ut::test_basic
   ; redshift initial and tolerance
   redshift_initial = 1.0
   redshift_tolerance=0.001
-  ; spectral resolution initial and tolerance
-  resolution_initial=12000
-  resolution_tolerance=0.9*resolution_initial
-  resolution_min=6000.0
-  resolution_max=30000.0
-  
+  ; initial FWHM and tolerance
+  fwhm_initial=1.0
+  fwhm_tolerance=1.4;*fwhm_initial
+  fwhm_min=0.1
+  fwhm_max=1.8
+  rebin_resolution = 10
+  temp=size(wavel,/DIMENSIONS)
+  speclength=temp[0]
+  speclength_new=rebin_resolution*speclength
+  wavel_new = interpolate(wavel, (double(speclength)-1.)/(double(speclength_new)-1.) * findgen(speclength_new))
+  flux_new = interpolate(flux, (double(speclength)-1.)/(double(speclength_new)-1.) * findgen(speclength_new))
+  wavel=wavel_new
+  flux=flux_new
   strong_emissionlines = mgfit_detect_strong_lines(wavel, flux, strongline_data, $
                                                   popsize=popsize, pressure=pressure, $
                                                   generations=generations, $
                                                   interval_wavelength=interval_wavelength, $
                                                   redshift_initial=redshift_initial, $
                                                   redshift_tolerance=redshift_tolerance, $
-                                                  resolution_initial=resolution_initial, $
-                                                  resolution_tolerance=resolution_tolerance, $
-                                                  resolution_min=resolution_min, $
-                                                  resolution_max=resolution_max, $
+                                                  fwhm_initial=fwhm_initial, $
+                                                  fwhm_tolerance=fwhm_tolerance, $
+                                                  fwhm_min=fwhm_min, fwhm_max=fwhm_max, $
                                                   image_output_path=image_output_path)
 
   

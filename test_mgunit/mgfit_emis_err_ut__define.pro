@@ -35,22 +35,29 @@ function mgfit_emis_err_ut::test_basic
   ; redshift initial and tolerance
   redshift_initial = 1.0
   redshift_tolerance=0.001
-  ; spectral resolution initial and tolerance
-  resolution_initial=12000
-  resolution_tolerance=0.9*resolution_initial
-  resolution_min=6000.0
-  resolution_max=30000.0
+  ; initial FWHM and tolerance
+  fwhm_initial=1.0
+  fwhm_tolerance=1.4;*fwhm_initial
+  fwhm_min=0.1
+  fwhm_max=1.8
   temp=size(wavel,/DIMENSIONS)
   speclength=temp[0]
   wavelength_min=wavel[0]
   wavelength_max=wavel[speclength-1]
-  
+  rebin_resolution = 10
+  temp=size(wavel,/DIMENSIONS)
+  speclength=temp[0]
+  speclength_new=rebin_resolution*speclength
+  wavel_new = interpolate(wavel, (double(speclength)-1.)/(double(speclength_new)-1.) * findgen(speclength_new))
+  flux_new = interpolate(flux, (double(speclength)-1.)/(double(speclength_new)-1.) * findgen(speclength_new))
+  wavel=wavel_new
+  flux=flux_new
   spectrumdata=mgfit_init_spec(wavel, flux)
 
   emissionlines_section=mgfit_init_fltr_emis(strongline_data, wavelength_min, wavelength_max, redshift_initial)
-  emissionlines_section = mgfit_emis(spectrumdata, redshift_initial, resolution_initial, $
-                                     emissionlines_section, redshift_tolerance, resolution_tolerance, $
-                                     resolution_min, resolution_max, $
+  emissionlines_section = mgfit_emis(spectrumdata, redshift_initial, fwhm_initial, $
+                                     emissionlines_section, redshift_tolerance, fwhm_tolerance, $
+                                     fwhm_min, fwhm_max, $
                                      generations, popsize, pressure)
   
   specsynth=replicate(spectrumstructure, speclength)

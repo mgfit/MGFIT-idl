@@ -1,6 +1,7 @@
 ; docformat = 'rst'
 
-function mgfit_emis_err, syntheticspec, spectrumdata, emissionlines, redshift
+function mgfit_emis_err, syntheticspec, spectrumdata, emissionlines, redshift, $
+                         rebin_resolution=rebin_resolution
 ;+
 ;     This function estimates the uncertainties introduced by the best-fit 
 ;     model residuals and the white noise quantified using the signal-dependent 
@@ -11,9 +12,14 @@ function mgfit_emis_err, syntheticspec, spectrumdata, emissionlines, redshift
 ; :Returns:
 ;    type=arrays of structures. This function returns the arrays of structures 
 ;                              { wavelength: 0.0, peak:0.0, sigma1:0.0, flux:0.0, 
-;                                uncertainty:0.0, redshift:0.0, resolution:0.0, 
-;                                blended:0, Ion:'', Multiplet:'', 
+;                                uncertainty:0.0, pcerror:0.0, redshift:0.0,
+;                                resolution:0.0, blended:0, Ion:'', Multiplet:'', 
 ;                                LowerTerm:'', UpperTerm:'', g1:'', g2:''}
+;
+; :Keywords:
+;     rebin_resolution     :    in, optional, type=float
+;                               increase the spectrum resolution by rebinning
+;                               resolution by rebin_resolution times
 ;
 ; :Params:
 ;     syntheticspec :     in, required, type=arrays of structures
@@ -32,6 +38,7 @@ function mgfit_emis_err, syntheticspec, spectrumdata, emissionlines, redshift
 ;                           sigma1:0.0, 
 ;                           flux:0.0, 
 ;                           uncertainty:0.0, 
+;                           pcerror:0.0,
 ;                           redshift:0.0, 
 ;                           resolution:0.0, 
 ;                           blended:0, 
@@ -115,18 +122,21 @@ function mgfit_emis_err, syntheticspec, spectrumdata, emissionlines, redshift
       rms_noise=(total(residuals_select[0:residuals_num2-1]^2)/float(residuals_num2))^0.5
       spectrumdata[i].residual=rms_noise
     endfor
-    spectrumdata[0:residuals_num-1].residual=spectrumdata[residuals_num].residual
+    spectrumdata[0:residuals_num1-1].residual=spectrumdata[residuals_num1].residual
+    temp=size(spectrumdata.residual,/DIMENSIONS)
+    residual_size=temp[0]
+    spectrumdata[residual_size-residuals_num1-1:residual_size-1].residual=spectrumdata[residual_size-residuals_num1-2].residual
   endif else begin
     residuals_select=abs(residuals[0:speclength-1])
     residuals_sort=sort(residuals_select)
     residuals_select=residuals_select[residuals_sort]
     rms_noise=(total(residuals_select[0:speclength-1]^2)/float(speclength))^0.5
     spectrumdata[*].residual=rms_noise
+    temp=size(spectrumdata.residual,/DIMENSIONS)
+    residual_size=temp[0]
+    spectrumdata[residual_size-residuals_num-1:residual_size-1].residual=spectrumdata[residual_size-residuals_num-2].residual
   endelse
   
-  temp=size(spectrumdata.residual,/DIMENSIONS)
-  residual_size=temp[0]
-  spectrumdata[residual_size-residuals_num-1:residual_size-1].residual=spectrumdata[residual_size-residuals_num-2].residual
   ;spectrumdata[residual_size-residuals_num-1:residual_size-1].residual=spectrumdata[residual_size-residuals_num-0].residual
   
   temp=size(emissionlines,/DIMENSIONS)
@@ -151,15 +161,66 @@ function mgfit_emis_err, syntheticspec, spectrumdata, emissionlines, redshift
       emissionlines[i].sigma1=redshift*emissionlines[i].wavelength/emissionlines[i].resolution
       fwhm=2*sqrt(2*alog(2))*emissionlines[i].sigma1
       rms_noise=spectrumdata[waveindex].residual
-      delta_wavelength=abs(spectrumdata[waveindex].wavelength - spectrumdata[waveindex-1].wavelength)
+      if keyword_set(rebin_resolution) eq 1 then begin
+        delta_wavelength=float(rebin_resolution)*abs(spectrumdata[waveindex].wavelength - spectrumdata[waveindex-1].wavelength)
+      endif else begin
+        delta_wavelength=abs(spectrumdata[waveindex].wavelength - spectrumdata[waveindex-1].wavelength)
+      endelse
       peak_snr=emissionlines[i].peak/rms_noise
       line_snr=C_x*(fwhm/delta_wavelength)^0.5*peak_snr
       if line_snr ne 0 then begin
-        emissionlines[i].flux= emissionlines[i].peak*emissionlines[i].sigma1*sqrt(2*!dpi)
+        emissionlines[i].flux= emissionlines[i].peak*emissionlines[i].sigma1*sqrt(2.*!dpi)
         emissionlines[i].uncertainty=emissionlines[i].flux/line_snr
       endif else begin
         emissionlines[i].uncertainty=0.0
       endelse
+      if emissionlines[i].peak ne 0 and emissionlines[i].sigma1 ne 0 then begin
+        linelocation0 = where(spectrumdata.wavelength gt emissionlines[i].redshift*emissionlines[i].wavelength)
+        linelocation=min(linelocation0)
+        resolution0=abs(spectrumdata[linelocation+1].wavelength - spectrumdata[linelocation].wavelength)
+        linelocation0_step_h=long(2.*2.355*emissionlines[i].sigma1/resolution0)
+        if linelocation-linelocation0_step_h ge 0 and linelocation+linelocation0_step_h-1 lt speclength then begin
+          lam1 = spectrumdata[linelocation-linelocation0_step_h:linelocation+linelocation0_step_h-1].wavelength
+          spec1 = spectrumdata[linelocation-linelocation0_step_h:linelocation+linelocation0_step_h-1].flux
+          ;cont1= mean(continuum[linelocation-linelocation0_step_h:linelocation+linelocation0_step_h-1].flux)
+          res1 = spectrumdata[linelocation-linelocation0_step_h:linelocation+linelocation0_step_h-1].residual
+        endif else begin
+          if linelocation-linelocation0_step_h lt 0 and linelocation+linelocation0_step_h-1 ge speclength then begin
+            lam1 = spectrumdata[0:speclength-1].wavelength
+            spec1 = spectrumdata[0:speclength-1].flux
+            ;cont1= mean(continuum[0:linelocation+linelocation0_step_h-1].flux)
+            res1 = spectrumdata[0:speclength-1].residual
+          endif else begin
+            if linelocation-linelocation0_step_h lt 0 then begin
+              lam1 = spectrumdata[0:linelocation+linelocation0_step_h-1].wavelength
+              spec1 = spectrumdata[0:linelocation+linelocation0_step_h-1].flux
+              ;cont1= mean(continuum[0:linelocation+linelocation0_step_h-1].flux)
+              res1 = spectrumdata[0:linelocation+linelocation0_step_h-1].residual
+            endif
+            if linelocation+linelocation0_step_h-1 ge speclength then begin
+              lam1= spectrumdata[linelocation-linelocation0_step_h:speclength-1].wavelength
+              spec1 = spectrumdata[linelocation-linelocation0_step_h:speclength-1].flux
+              ;cont1= mean(continuum[linelocation-linelocation0_step_h:speclength-1].flux)
+              res1 = spectrumdata[linelocation-linelocation0_step_h:speclength-1].residual
+            endif
+          endelse
+        endelse
+        peak1=emissionlines[i].peak
+        sigma1=emissionlines[i].sigma1
+        centroid1=emissionlines[i].redshift*emissionlines[i].wavelength
+        estimates=[peak1, centroid1, sigma1]
+        ;a[0]=peak1
+        ;a[1]=centroid1
+        ;a[2]=sigma1
+        error=res1
+        yfit = mpfitpeak(lam1, spec1, a, perror=perror, $
+                         ESTIMATES=estimates, BESTNORM=bestnorm, $
+                         ERROR=error, DOF=dof, /POSITIVE, /GAUSSIAN)
+        pcerror = perror * sqrt(bestnorm / dof) ;  estimated scaled uncertainties from measured 1-sigma uncertainties
+        flux_perror=sqrt((perror[0]/a[0])^2.+(perror[2]/a[2])^2.)
+        flux_pcerror=sqrt((pcerror[0]/a[0])^2.+(pcerror[2]/a[2])^2.) ; estimated flux uncertainty from 1-sigma uncertainties
+        emissionlines[i].pcerror=flux_pcerror
+      endif
     endif else begin
       emissionlines[i].uncertainty=0.0
     endelse

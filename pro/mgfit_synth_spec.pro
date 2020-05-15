@@ -18,6 +18,7 @@ function mgfit_synth_spec, lines, spec, continuum=continuum
 ;                     sigma1:0.0, 
 ;                     flux:0.0, 
 ;                     continuum:0.0, 
+;                     pcerror:0.0
 ;                     uncertainty:0.0, 
 ;                     redshift:0.0, 
 ;                     resolution:0.0, 

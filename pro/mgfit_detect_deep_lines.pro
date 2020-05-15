@@ -4,6 +4,7 @@ function mgfit_detect_deep_lines, wavelength, flux, deepline_data, $
                                   strong_emissionlines, strongline_data, $
                                   popsize=popsize, pressure=pressure, $
                                   generations=generations, $
+                                  rebin_resolution=rebin_resolution, $
                                   interval_wavelength=interval_wavelength, $
                                   redshift_initial=redshift_initial, $
                                   redshift_strongline=redshift_strongline, $
@@ -75,6 +76,10 @@ function mgfit_detect_deep_lines, wavelength, flux, deepline_data, $
 ;     generations          :    in, optional, type=float
 ;                               the maximum generation number in the genetic algorithm
 ;
+;     rebin_resolution     :    in, optional, type=float
+;                               increase the spectrum resolution by rebinning 
+;                               resolution by rebin_resolution times
+; 
 ;     interval_wavelength  :    in, optional, type=float
 ;                               the wavelength interval used in each iteration
 ;
@@ -315,14 +320,14 @@ function mgfit_detect_deep_lines, wavelength, flux, deepline_data, $
             generations, popsize, pressure, line_array_size=linelocation0_step, $
             printgenerations=printgenerations, $
             no_blueshift=no_blueshift, /printimage, imagename=imagename, image_output_path=image_output_path, $
-            no_mpfit=no_mpfit)
+            no_mpfit=no_mpfit, rebin_resolution=rebin_resolution)
         endif else begin
           emissionlines_section = mgfit_emis(spec_section, redshift_initial, fwhm_initial, $
             emissionlines_section, redshift_tolerance, fwhm_tolerance, $
             fwhm_min, fwhm_max, $
             generations, popsize, pressure, line_array_size=linelocation0_step, $
             printgenerations=printgenerations, $
-            no_blueshift=no_blueshift, no_mpfit=no_mpfit)
+            no_blueshift=no_blueshift, no_mpfit=no_mpfit, rebin_resolution=rebin_resolution)
         endelse
       endif else begin
         if keyword_set(image_output_path) eq 1 then begin
@@ -332,14 +337,14 @@ function mgfit_detect_deep_lines, wavelength, flux, deepline_data, $
             generations, popsize, pressure, $ ;line_array_size=linelocation0_step, $
             printgenerations=printgenerations, $
             no_blueshift=no_blueshift, /printimage, imagename=imagename, image_output_path=image_output_path, $
-            no_mpfit=no_mpfit) 
+            no_mpfit=no_mpfit, rebin_resolution=rebin_resolution) 
         endif else begin
           emissionlines_section = mgfit_emis(spec_section, redshift_initial, fwhm_initial, $
             emissionlines_section, redshift_tolerance, fwhm_tolerance, $
             fwhm_min, fwhm_max, $
             generations, popsize, pressure, $ ;line_array_size=linelocation0_step, $
             printgenerations=printgenerations, $
-            no_blueshift=no_blueshift, no_mpfit=no_mpfit) 
+            no_blueshift=no_blueshift, no_mpfit=no_mpfit, rebin_resolution=rebin_resolution) 
         endelse
       endelse
 

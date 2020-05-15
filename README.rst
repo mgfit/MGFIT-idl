@@ -38,6 +38,8 @@ Dependent IDL Packages
     - `The Coyote IDL Library <https://github.com/idl-coyote/coyote>`_
     
     - `The MPFIT IDL Library <http://cow.physics.wisc.edu/~craigm/idl/idl.html>`_
+
+    - `The TextoIDL Library <http://physics.mnstate.edu/craig/textoidl/>`_
     
 * To get this package with all the dependent packages, you can simply use ``git`` command as follows::
 
@@ -85,7 +87,8 @@ Installation in GDL
     !PATH=!PATH + ':/home/MGFIT-idl/externals/coyote/pro/'
     !PATH=!PATH + ':/home/MGFIT-idl/externals/coyote/public/'
     !PATH=!PATH + ':/home/MGFIT-idl/externals/mpfit/'
-
+    !PATH=!PATH + ':/home/MGFIT-idl/externals/textoidl/'
+  
   You may also need to set ``GDL_STARTUP`` if you have not done in ``.bashrc`` (bash)::
 
     export GDL_STARTUP=~/.gdl_startup

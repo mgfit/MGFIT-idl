@@ -47,8 +47,9 @@ function mgfit::init
   deepline_data=read_deeplines(fits_file)
   self.strongline_data=ptr_new(strongline_data)
   self.deepline_data=ptr_new(deepline_data)
-  self.image_output_path= file_dirname(file_dirname((routine_info('$MAIN$', /source)).path))
-  self.output_path= file_dirname(file_dirname((routine_info('$MAIN$', /source)).path))
+  cd, current=currentDir
+  self.image_output_path= currentDir ;file_dirname(file_dirname((routine_info('$MAIN$', /source)).path))
+  self.output_path= currentDir ;file_dirname(file_dirname((routine_info('$MAIN$', /source)).path))
   self.popsize=30.
   self.pressure=0.3
   self.generations=500.
@@ -188,7 +189,7 @@ function mgfit::detect_lines, wavelength, flux, $
 ; :Examples:
 ;    For example::
 ;
-;     IDL> emissionlines = mgfit::detect_lines(wavelength, flux)
+;     IDL> emissionlines = mgfit->detect_lines(wavelength, flux)
 ;
 ; :Categories:
 ;   Spectrum
@@ -264,7 +265,125 @@ function mgfit::detect_lines, wavelength, flux, $
                            output_path=self.output_path, $
                            no_mpfit=no_mpfit, no_blueshift=no_blueshift)
   return, value                        
-end     
+end
+
+pro mgfit::read_ascii, filename, wavel, flux
+;+
+;     This function read ascii file spectrum.
+; 
+; :Params:
+;     filename:     in, required, type=string
+;                   the file name for writing the lines.
+;
+;     wavel  :      in, required, type=arrays
+;                   the wavelength array
+;            
+;     flux   :      in, required, type=arrays
+;                   the flux array
+;
+; :Examples:
+;    For example::
+;
+;     IDL> mgfit->read_ascii, filename, wavel, flux
+;
+; :Categories:
+;   Spectrum
+;
+; :Dirs:
+;  ./
+;      Main routines
+;
+; :Author:
+;   Ashkbiz Danehkar
+;
+; :Copyright:
+;   This library is released under a GNU General Public License.
+;
+; :Version:
+;   0.1.0
+;
+; :History:
+;     14/05/2020, A. Danehkar, Create function.
+;     
+;     15/05/2020, A. Danehkar, Move to object-oriented programming (OOP).
+;-
+  mgfit_read_ascii, filename, wavel, flux
+end
+
+pro mgfit::save_lines, emissionlines, filename, $
+                      hb_ha_flux_ratio=hb_ha_flux_ratio, $
+                      ha_hb_flux_ratio=ha_hb_flux_ratio, $
+                      wavelength_shift=wavelength_shift, $
+                      sum_errors=sum_errors, median_errors=median_errors
+;+
+;     This function save detected lines.
+;
+; :Keywords:
+;     hb_ha_flux_ratio  :     in, optional, type=float   
+;                             H-beta over H-alpha flux ratio
+; 
+;     ha_hb_flux_ratio  :     in, optional, type=boolean
+;                             H-alpha over H-beta flux ratio
+; 
+;     wavelength_shift  :     in, optional, type=boolean
+;                             shift wavelengths
+; 
+; :Params:
+;     lines  :      in, required, type=arrays of structures
+;                   the line list stored in
+;                   the arrays of structures
+;                   { wavelength: 0.0,
+;                     peak:0.0,
+;                     sigma1:0.0,
+;                     flux:0.0,
+;                     continuum:0.0,
+;                     uncertainty:0.0,
+;                     pcerror:0.0
+;                     redshift:0.0,
+;                     resolution:0.0,
+;                     blended:0,
+;                     Ion:'',
+;                     Multiplet:'',
+;                     LowerTerm:'',
+;                     UpperTerm:'',
+;                     g1:'',
+;                     g2:''}
+;     
+;     filename:     in, required, type=string
+;                   the file name for writing the lines.
+;
+; :Examples:
+;    For example::
+;
+;     IDL> mgfit->save_lines, emissionlines, filename
+;
+; :Categories:
+;   Spectrum
+;
+; :Dirs:
+;  ./
+;      Main routines
+;
+; :Author:
+;   Ashkbiz Danehkar
+;
+; :Copyright:
+;   This library is released under a GNU General Public License.
+;
+; :Version:
+;   0.1.0
+;
+; :History:
+;     14/05/2020, A. Danehkar, Create function.
+;     
+;     15/05/2020, A. Danehkar, Move to object-oriented programming (OOP).
+;-
+  mgfit_save_lines, emissionlines, filename, $
+                    hb_ha_flux_ratio=hb_ha_flux_ratio, $
+                    ha_hb_flux_ratio=ha_hb_flux_ratio, $
+                    wavelength_shift=wavelength_shift, $
+                    sum_errors=sum_errors, median_errors=median_errors
+end
 ;-------------
 pro mgfit::set_popsize, popsize
   if popsize ne '' then self.popsize=popsize else print, 'Error: popsize is not given'

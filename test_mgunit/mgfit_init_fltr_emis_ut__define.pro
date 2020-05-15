@@ -33,11 +33,11 @@ function mgfit_init_fltr_emis_ut::test_basic
   ; redshift initial and tolerance
   redshift_initial = 1.0
   redshift_tolerance=0.001
-  ; spectral resolution initial and tolerance
-  resolution_initial=12000
-  resolution_tolerance=0.9*resolution_initial
-  resolution_min=6000.0
-  resolution_max=30000.0
+  ; initial FWHM and tolerance
+  fwhm_initial=1.0
+  fwhm_tolerance=1.4;*fwhm_initial
+  fwhm_min=0.1
+  fwhm_max=1.8
   temp=size(wavel,/DIMENSIONS)
   speclength=temp[0]
   wavelength_min=wavel[0]

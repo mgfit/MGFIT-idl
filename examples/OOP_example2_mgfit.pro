@@ -10,31 +10,6 @@
 ; 
 ; 
 
-pro read1dspecascii, specfile, wavel, flux
-  rownumber=long(0)
-  rownumber= file_lines(specfile)  
-  wavel=dblarr(rownumber)
-  flux=dblarr(rownumber)
-  b0=double(0.0)
-  b1=double(0.0)
-  openr, lun, specfile, /GET_LUN
-  i=long(0)
-  while(i lt rownumber) do begin
-    readf,lun, b0, b1
-    wavel[i] = b0
-    flux[i] = b1 
-    i = i + 1
-  endwhile
-  free_lun, lun 
-end
-
-; Example: mgfit_detect_lines()
-;     This function detects lines using 
-;     the string and deep line lists.
-;
-; --- Begin $MAIN$ program. ---------------
-; 
-; 
 mg=obj_new('mgfit')
 
 base_dir = file_dirname(file_dirname((routine_info('$MAIN$', /source)).path))
@@ -64,7 +39,7 @@ fwhm_tolerance=0.8;*fwhm_initial
 fwhm_min=0.1
 fwhm_max=1.8
 
-read1dspecascii, input_file, wavel, flux
+mg->read_ascii, input_file, wavel, flux
 
 emissionlines = mg->detect_lines(wavel, flux, $
                                  popsize=popsize, pressure=pressure, $
@@ -75,5 +50,8 @@ emissionlines = mg->detect_lines(wavel, flux, $
                                  fwhm_initial=fwhm_initial, $
                                  fwhm_tolerance=fwhm_tolerance, $
                                  fwhm_min=fwhm_min, fwhm_max=fwhm_max, /auto_line_array_size)
+
+output_filename=output_path+'line_list'
+mg->save_lines, emissionlines, output_filename
 
 end

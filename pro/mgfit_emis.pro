@@ -6,7 +6,8 @@ function mgfit_emis, specdata, redshift_initial, fwhm_initial, emissionlines, $
                      generations, popsize, pressure, line_array_size=line_array_size, $
                      no_blueshift=no_blueshift, printimage=printimage, $
                      imagename=imagename, image_output_path=image_output_path, $
-                     printgenerations=printgenerations, no_mpfit=no_mpfit
+                     printgenerations=printgenerations, no_mpfit=no_mpfit, $
+                     rebin_resolution=rebin_resolution
 ;+
 ;     This function fits multiple Gaussian functions to a list of emission lines using 
 ;     a least-squares minimization technique and a genetic-type random walk
@@ -46,6 +47,10 @@ function mgfit_emis, specdata, redshift_initial, fwhm_initial, emissionlines, $
 ;     no_blueshift          :     in, required, type=boolean
 ;                                 Forbid the blueshift                    
 ;
+;     rebin_resolution     :    in, optional, type=float
+;                               increase the spectrum resolution by rebinning 
+;                               resolution by rebin_resolution times
+; 
 ; :Params:
 ;     specdata           :     in, required, type=arrays of structures
 ;                              the observed spectrum stored in 
@@ -65,6 +70,7 @@ function mgfit_emis, specdata, redshift_initial, fwhm_initial, emissionlines, $
 ;                                flux:0.0, 
 ;                                continuum:0.0, 
 ;                                uncertainty:0.0, 
+;                                pcerror:0.0, 
 ;                                redshift:0.0, 
 ;                                resolution:0.0, 
 ;                                blended:0, 
@@ -132,8 +138,9 @@ function mgfit_emis, specdata, redshift_initial, fwhm_initial, emissionlines, $
 
   common random_seed, seed
   spectrumstructure={wavelength: 0.0, flux:0.0, residual:0.0}
-  emissionlinestructure={wavelength: 0.0, peak:0.0, sigma1:0.0, flux:0.0, continuum:0.0, uncertainty:0.0, redshift:0.0, resolution:0.0, blended:0, Ion:'', Multiplet:'', LowerTerm:'', UpperTerm:'', g1:'', g2:''}
-  populationstructure={wavelength: 0.0, peak:0.0, sigma1:0.0, flux:0.0, continuum:0.0, uncertainty:0.0, redshift:0.0, resolution:0.0, blended:0}
+  emissionlinestructure={wavelength: 0.0, peak:0.0, sigma1:0.0, flux:0.0, continuum:0.0, uncertainty:0.0, pcerror: 0.0, $
+                         redshift:0.0, resolution:0.0, blended:0, Ion:'', Multiplet:'', LowerTerm:'', UpperTerm:'', g1:'', g2:''}
+  populationstructure={wavelength: 0.0, peak:0.0, sigma1:0.0, flux:0.0, continuum:0.0, uncertainty:0.0, pcerror: 0.0, redshift:0.0, resolution:0.0, blended:0}
   
   temp=size(emissionlines,/DIMENSIONS)
   nlines=temp[0]
@@ -159,7 +166,7 @@ function mgfit_emis, specdata, redshift_initial, fwhm_initial, emissionlines, $
   continuum=mgfit_contin(specdata1)
   
   ;plot,continuum.wavelength,continuum.flux
-  specdata1=mpfit_whitenoise(specdata1)
+  specdata1=mgfit_whitenoise(specdata1, rebin_resolution=rebin_resolution)
   
   specdata1.flux=specdata1.flux-continuum.flux
   negetive_loc=where(specdata1.flux lt 0.0)
@@ -195,7 +202,7 @@ function mgfit_emis, specdata, redshift_initial, fwhm_initial, emissionlines, $
           cont1= mean(continuum[linelocation-linelocation0_step_h:speclength-1].flux)
         endif
       endelse
-      yfit = mpfitpeak(lam1, spec1, a, error=perror, /POSITIVE)
+      yfit = mpfitpeak(lam1, spec1, a, perror=perror, /POSITIVE, /GAUSSIAN)
       ;a[0] Peak Value 
       ;a[1] Peak Centroid 
       ;a[2] Gaussian Sigma
@@ -447,7 +454,7 @@ function mgfit_emis, specdata, redshift_initial, fwhm_initial, emissionlines, $
   specsynth_best=mgfit_synth_spec(emissionlines, specsynth_best)
   ; estimate uncertainties
   if max(emissionlines.peak) ne 0 then begin
-    emissionlines=mgfit_emis_err(specsynth_best, specdata1, emissionlines, redshift_initial)
+    emissionlines=mgfit_emis_err(specsynth_best, specdata1, emissionlines, redshift_initial, rebin_resolution=rebin_resolution)
   endif
   loc1=where(emissionlines.sigma1 ne 0.0)
   emissionlines[loc1].resolution=emissionlines[loc1].wavelength/emissionlines[loc1].sigma1
@@ -496,7 +503,7 @@ function mgfit_emis, specdata, redshift_initial, fwhm_initial, emissionlines, $
         filename='plot_'+strtrim(string(long(startwlen)),2)+'_'+strtrim(string(long(endwlen)),2)+'.eps'
       endelse
     endelse
-    device, /color, bits_per_pixeL=8, font_size=7, $
+    device, bits_per_pixeL=8, /color, font_size=7, $
          filename=filename, $
          encapsulated=1, helvetica=1, bold=1, book=1, $
          xsize=7.0, ysize=2.391, inches=1

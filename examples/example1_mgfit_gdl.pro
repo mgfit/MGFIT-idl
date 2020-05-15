@@ -6,7 +6,7 @@
 ; 
 ; 
 
-base_dir = file_dirname(file_dirname((routine_info('$MAIN$', /source)).path))
+base_dir = '../'
 data_dir = ['data']
 input_dir = ['examples','example1','inputs']
 output_dir = ['examples','example1','outputs']
@@ -77,4 +77,4 @@ emissionlines = mgfit_detect_lines(wavel, flux, deepline_data, strongline_data, 
 output_filename=output_path+'line_list'
 mgfit_save_lines, emissionlines, output_filename
 
-end
+exit
