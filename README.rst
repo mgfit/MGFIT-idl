@@ -116,7 +116,7 @@ also load your spectrum arrays: wavelength array, and flux array (see `examples 
 
     input_dir = ['examples','inputs']
     input_file = filepath('spectrum.txt', root_dir=base_dir, subdir=input_dir )
-    read1dspecascii, input_file, wavel, flux
+    mgfit_read_ascii, input_file, wavel, flux
 
 and define the output paths::
 
@@ -153,12 +153,18 @@ Now you run the MGFIT main function as follows::
                                        fwhm_tolerance=fwhm_tolerance, $
                                        fwhm_min=fwhm_min, fwhm_max=fwhm_max, $
                                        image_output_path=image_output_path, output_path=output_path)
+    
+    output_filename=output_path+'line_list'
+    mgfit_save_lines, emissionlines, output_filename
 
 Alternatively, you could load the **mgfit** object class, which automatically loads the line list database as follows::
 
     mg=obj_new('mgfit')
     mg->set_output_path, output_path
     mg->set_image_output_path, image_output_path
+    
+    mg->read_ascii, input_file, wavel, flux
+    
     emissionlines = mg->detect_lines(wavel, flux, $
                                      popsize=popsize, pressure=pressure, $
                                      generations=generations, $
@@ -168,6 +174,9 @@ Alternatively, you could load the **mgfit** object class, which automatically lo
                                      fwhm_initial=fwhm_initial, $
                                      fwhm_tolerance=fwhm_tolerance, $
                                      fwhm_min=fwhm_min, fwhm_max=fwhm_max)
+    
+    output_filename=output_path+'line_list'
+    mg->save_lines, emissionlines, output_filename
 
 It will take a while to identify lines and fit Gaussian curves. You need to check the images of fitted lines stored in the image folder to remove some misidentified lines manually from the final list.
 
