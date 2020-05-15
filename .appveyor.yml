@@ -16,6 +16,6 @@ install:
   - git submodule update --init --recursive
   - export GDL_STARTUP=/home/appveyor/projects/mgfit-idl/test_appveyor/.gdl_startup
 
-#test_script:
-#- gdl -e @test_appveyor/test_mgfit_gdl.pro
+test_script:
+- gdl -e @test_appveyor/test_mgfit_gdl.pro
 

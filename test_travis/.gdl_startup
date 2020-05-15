@@ -4,6 +4,7 @@
 !PATH=!PATH + ':/home/travis/build/mgfit/MGFIT-idl/externals/coyote/public/'
 !PATH=!PATH + ':/home/travis/build/mgfit/MGFIT-idl/externals/mpfit/'
 !PATH=!PATH + ':/home/travis/build/mgfit/MGFIT-idl/externals/textoidl/'
+!PATH=!PATH + ':/home/travis/build/mgfit/MGFIT-idl/externals/gdl_0_9_6/'
 !DIR='/home/travis/build/mgfit/MGFIT-idl/'
 print, '%** Personal settings are loaded and active **';
 
