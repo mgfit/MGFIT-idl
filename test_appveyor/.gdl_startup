@@ -4,7 +4,6 @@
 !PATH=!PATH + ':/home/appveyor/projects/mgfit-idl/externals/coyote/public/'
 !PATH=!PATH + ':/home/appveyor/projects/mgfit-idl/externals/mpfit/'
 !PATH=!PATH + ':/home/appveyor/projects/mgfit-idl/externals/textoidl/'
-!PATH=!PATH + ':/home/appveyor/projects/mgfit-idl/externals/gdl_0_9_6/'
 !DIR='/home/appveyor/projects/mgfit-idl/'
 print, '%** Personal settings are loaded and active **';
 
