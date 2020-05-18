@@ -14,7 +14,7 @@ The translation is done for either vector or PostScript fonts.
 
 BUGS:
    Please report any bugs you find or suggestions for improvement to:
-mcraig@mnstate.edu 
+mcraig@astro.berkeley.edu
 
 FILES:
    For a list of the files in this distribution see the file FILES.
@@ -36,7 +36,7 @@ INTRO TO TeX, below.
 EXAMPLE:
    If you type. . .
 IDL> str = TeXtoIDL("\rho^2 + 2\Gamma_{ij}")
-IDL> help, str
+IDL> print, str
 STR             STRING    = '!7q!X!U2!N + 2!7C!X!Dij!N'
 IDL> xyouts,.5,.5,str,CHARSIZE=2.,/NORM
 
@@ -44,11 +44,12 @@ then on the screen you will see the Greek letter rho with a 2 in the
 exponent, and then a + and then a 2 and then the uppercase Greek
 letter gamma, with an "ij" in the subscript.
 
-VERSION:
-  You are using version $Name: Rel_2_1_2 $ of TeXtoIDL.
-
 REVISION HISTORY:
-  See the file VERSIONS.
+   Version 1.0 --- Initial release.
+
+   Version 1.1 --- Added \circ, fixed vector \varphi.
+
+   Version 1.2 --- Added \vartheta.
 
 LEGALITIES:
    For copyright and redistribution restrictions, see the file
