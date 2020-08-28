@@ -352,10 +352,20 @@ function mgfit_detect_deep_lines, wavelength, flux, deepline_data, $
       fwhm_initial=fwhm_strongline
 
       if nlines gt 1 then begin
-        emissionlines[linearraypos:linearraypos+nlines-1]=emissionlines_section
+        ;emissionlines[linearraypos:linearraypos+nlines-1]=emissionlines_section
+        for ic=0, nlines-1 do begin
+          loc1=where(emissionlines.wavelength eq emissionlines_section[ic].wavelength)
+          if loc1[0] ne -1 then begin
+            emissionlines[loc1]=emissionlines_section[ic]
+          endif
+        endfor   
       endif else begin
         if emissionlines_section.wavelength gt startwlen and emissionlines_section.wavelength lt endwlen then begin
-          emissionlines[linearraypos]=emissionlines_section
+          ;emissionlines[linearraypos]=emissionlines_section
+          loc1=where(emissionlines.wavelength eq emissionlines_section[0].wavelength)
+          if loc1[0] ne -1 then begin
+            emissionlines[loc1]=emissionlines_section[0]
+          endif
         endif
       endelse
       linearraypos=linearraypos+nlines

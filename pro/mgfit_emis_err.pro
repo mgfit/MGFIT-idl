@@ -177,7 +177,7 @@ function mgfit_emis_err, syntheticspec, spectrumdata, emissionlines, redshift, $
       if emissionlines[i].peak ne 0 and emissionlines[i].sigma1 ne 0 then begin
         linelocation0 = where(spectrumdata.wavelength gt emissionlines[i].redshift*emissionlines[i].wavelength)
         linelocation=min(linelocation0)
-        resolution0=abs(spectrumdata[linelocation+1].wavelength - spectrumdata[linelocation].wavelength)
+        resolution0=abs(spectrumdata[linelocation].wavelength - spectrumdata[linelocation-1].wavelength)
         linelocation0_step_h=long(2.*2.355*emissionlines[i].sigma1/resolution0)
         if linelocation-linelocation0_step_h ge 0 and linelocation+linelocation0_step_h-1 lt speclength then begin
           lam1 = spectrumdata[linelocation-linelocation0_step_h:linelocation+linelocation0_step_h-1].wavelength
