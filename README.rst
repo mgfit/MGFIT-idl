@@ -214,3 +214,12 @@ Documentation
 =============
 
 For more information on how to use the API functions from the MGFIT-idl libray, please read the `API Documentation  <https://mgfit.github.io/MGFIT-idl/doc>`_ published on `mgfit.github.io/MGFIT-idl <https://mgfit.github.io/MGFIT-idl>`_.
+
+Learn More
+==========
+
+==================  =============================================
+**Documentation**   https://mgfit.github.io/MGFIT-idl/doc/
+**Repository**      https://github.com/mgfit/MGFIT-idl
+**Issues & Ideas**  https://github.com/mgfit/MGFIT-idl/issues
+==================  =============================================
