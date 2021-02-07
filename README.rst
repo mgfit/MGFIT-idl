@@ -17,6 +17,10 @@ MGFIT-idl
 .. image:: https://img.shields.io/badge/license-GPL-blue.svg
     :target: https://github.com/mgfit/mgfit-idl/blob/master/LICENSE
     :alt: GitHub license
+    
+.. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.4495917.svg
+    :target: https://doi.org/10.5281/zenodo.4495917
+    :alt: Zenodo
 
 **MGFIT (IDL version)** - IDL/GDL Library for Least-Squares Minimization Genetic Algorithm Fitting
 
@@ -222,4 +226,5 @@ Learn More
 **Documentation**   https://mgfit.github.io/MGFIT-idl/doc/
 **Repository**      https://github.com/mgfit/MGFIT-idl
 **Issues & Ideas**  https://github.com/mgfit/MGFIT-idl/issues
+**Archive**         `10.5281/zenodo.4495917 <https://doi.org/10.5281/zenodo.4495917>`_
 ==================  =============================================
