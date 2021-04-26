@@ -18,7 +18,7 @@ MGFIT-idl
     :target: https://github.com/mgfit/mgfit-idl/blob/master/LICENSE
     :alt: GitHub license
     
-.. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.4495917.svg
+.. image:: https://img.shields.io/badge/DOI-10.5281/zenodo.4495917-blue.svg
     :target: https://doi.org/10.5281/zenodo.4495917
     :alt: Zenodo
 
