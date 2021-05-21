@@ -48,7 +48,7 @@ function read_ultradeeplines, fits_file
 ; :History:
 ;     20/07/2014, A. Danehkar, IDL code written.
 ;- 
-  line_template={Wavelength: 0.0, Ion:'', Multiplet:'', LowerTerm:'', UpperTerm:'', g1:'', g2:''}
+  line_template={Wavelength:double(0.0), Ion:'', Multiplet:'', LowerTerm:'', UpperTerm:'', g1:'', g2:''}
   
   ftab_ext,fits_file,[1,2,3,4,5,6,7],Wavelength,Ion,Multiplet,LowerTerm,UpperTerm,g1,g2,EXTEN_NO =4
   temp=size(Wavelength,/DIMENSIONS)

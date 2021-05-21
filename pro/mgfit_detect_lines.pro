@@ -131,7 +131,7 @@ function mgfit_detect_lines, wavelength, flux, deepline_data, strongline_data, $
 ; :History:
 ;     02/05/2020, A. Danehkar, Create function.
 ;-
-  spectrumstructure={wavelength: 0.0, flux:0.0, residual:0.0}
+  spectrumstructure={wavelength: double(0.0), flux:double(0.0), residual:double(0.0)}
   if keyword_set(wavelength) eq 0 then begin
     print,'wavelength is not set'
     return, 0
@@ -162,7 +162,7 @@ function mgfit_detect_lines, wavelength, flux, deepline_data, strongline_data, $
     generations=500.
   endif
   if keyword_set(interval_wavelength) eq 0 then begin
-    interval_wavelength = 500
+    interval_wavelength = 20
   endif
   if keyword_set(redshift_initial) eq 0 then begin
     redshift_initial = 1.0
@@ -191,60 +191,75 @@ function mgfit_detect_lines, wavelength, flux, deepline_data, strongline_data, $
     wavelength=wavelength_new
     flux=flux_new
   endif
-  fwhm_tolerance_ratio=fwhm_tolerance/fwhm_initial
-  strong_emissionlines = mgfit_detect_strong_lines(wavelength, flux, strongline_data, $
-                                                  popsize=popsize, pressure=pressure, $
-                                                  generations=generations, $
-                                                  rebin_resolution=rebin_resolution, $
-                                                  interval_wavelength=interval_wavelength, $
-                                                  redshift_initial=redshift_initial, $
-                                                  redshift_tolerance=redshift_tolerance, $
-                                                  fwhm_initial=fwhm_initial, $
-                                                  fwhm_tolerance=fwhm_tolerance, $
-                                                  fwhm_min=fwhm_min, $
-                                                  fwhm_max=fwhm_max, $
-                                                  ;/printgenerations, $
-                                                  no_blueshift=no_blueshift, no_mpfit=no_mpfit, $
-                                                  image_output_path=image_output_path)
-
-  stron_line_save_file=output_path+'save_strong_line_list.txt'
-  mgfit_write_lines, strong_emissionlines, stron_line_save_file
-  ;strong_emissionlines1=mgfit_read_lines(stron_line_save_file)
-  ;stron_line_save_file=output_path+'strong_line_list1.txt'
-  ;mgfit_write_lines, strong_emissionlines1, stron_line_save_file
-
-  temp=size(wavelength,/DIMENSIONS)
-  speclength=temp[0]
-  spectrumdata=mgfit_init_spec(wavelength, flux)
+  check_strong_lines=1
+  if check_strong_lines eq 1 then begin
+    fwhm_tolerance_ratio=fwhm_tolerance/fwhm_initial
+    strong_emissionlines = mgfit_detect_strong_lines(wavelength, flux, strongline_data, $
+                                                    popsize=popsize, pressure=pressure, $
+                                                    generations=generations, $
+                                                    rebin_resolution=rebin_resolution, $
+                                                    interval_wavelength=interval_wavelength, $
+                                                    redshift_initial=redshift_initial, $
+                                                    redshift_tolerance=redshift_tolerance, $
+                                                    fwhm_initial=fwhm_initial, $
+                                                    fwhm_tolerance=fwhm_tolerance, $
+                                                    fwhm_min=fwhm_min, $
+                                                    fwhm_max=fwhm_max, $
+                                                    ;/printgenerations, $
+                                                    no_blueshift=no_blueshift, no_mpfit=no_mpfit, $
+                                                    /fit_continuum, $
+                                                    image_output_path=image_output_path)
   
-  syntheticspec=replicate(spectrumstructure, speclength)
-  syntheticspec[*].wavelength=spectrumdata.wavelength
-  syntheticspec[*].flux=0.0
-  syntheticspec=mgfit_synth_spec(strong_emissionlines, syntheticspec)
-  plot, spectrumdata.wavelength, spectrumdata.flux, color=cgColor('white');, XRANGE =[4840, 5040]
-  oplot, syntheticspec.wavelength, syntheticspec.flux, color=cgColor('red')
-  ;print, strong_emissionlines.flux
-  ;print, strong_emissionlines.redshift
-
-  strong_line=min(where(strong_emissionlines.flux eq max(strong_emissionlines.flux)))
-  redshift_initial_overall = strong_emissionlines[strong_line].redshift
-  redshift_initial=strong_emissionlines[strong_line].redshift
-  redshift_strongline=redshift_initial
-  fwhm_initial=2.355*strong_emissionlines[strong_line].sigma1
-  fwhm_strongline=fwhm_initial
-  ;fwhm_tolerance1=0.02*fwhm_initial;0.001*fwhm_initial;0.02*fwhm_initial;0.02*
-  ;fwhm_tolerance2=0.02*fwhm_initial;0.001*fwhm_initial;0.0001*fwhm_initial;0.01*fwhm_initial;0.01*500;500.
-  fwhm_tolerance2=fwhm_tolerance;*fwhm_initial
-  loc1=where(strong_emissionlines.flux ne 0)
-  fwhm_min2=2.355*min(strong_emissionlines[loc1].sigma1)*0.6
-  fwhm_max2=2.355*max(strong_emissionlines[loc1].sigma1)*1.4
-  fwhm_tolerance2=fwhm_max2;-fwhm_min2
+    stron_line_save_file=output_path+'save_strong_line_list.txt'
+    mgfit_write_lines, strong_emissionlines, stron_line_save_file
+    ;strong_emissionlines1=mgfit_read_lines(stron_line_save_file)
+    ;stron_line_save_file=output_path+'strong_line_list1.txt'
+    ;mgfit_write_lines, strong_emissionlines1, stron_line_save_file
   
-  redshift_min2=min(strong_emissionlines[loc1].redshift)
-  redshift_max2=max(strong_emissionlines[loc1].redshift)
-  redshift_tolerance2=redshift_max2-redshift_min2
-  ;redshift_tolerance2=10.0*redshift_tolerance2
-  redshift_tolerance2=redshift_tolerance
+    temp=size(wavelength,/DIMENSIONS)
+    speclength=temp[0]
+    spectrumdata=mgfit_init_spec(wavelength, flux)
+    
+    syntheticspec=replicate(spectrumstructure, speclength)
+    syntheticspec[*].wavelength=spectrumdata.wavelength
+    syntheticspec[*].flux=0.0
+    syntheticspec=mgfit_synth_spec(strong_emissionlines, syntheticspec)
+    plot, spectrumdata.wavelength, spectrumdata.flux, color=cgColor('white');, XRANGE =[4840, 5040]
+    oplot, syntheticspec.wavelength, syntheticspec.flux, color=cgColor('red')
+    ;print, strong_emissionlines.flux
+    ;print, strong_emissionlines.redshift
+  
+    strong_line=min(where(strong_emissionlines.flux eq max(strong_emissionlines.flux)))
+    redshift_initial_overall = strong_emissionlines[strong_line].redshift
+    redshift_initial=strong_emissionlines[strong_line].redshift
+    redshift_strongline=redshift_initial
+    fwhm_initial=2.355*strong_emissionlines[strong_line].sigma1
+    fwhm_strongline=fwhm_initial
+    ;fwhm_tolerance1=0.02*fwhm_initial;0.001*fwhm_initial;0.02*fwhm_initial;0.02*
+    ;fwhm_tolerance2=0.02*fwhm_initial;0.001*fwhm_initial;0.0001*fwhm_initial;0.01*fwhm_initial;0.01*500;500.
+    fwhm_tolerance2=fwhm_tolerance;*fwhm_initial
+    loc1=where(strong_emissionlines.flux ne 0)
+    fwhm_min2=2.355*min(strong_emissionlines[loc1].sigma1)*0.5
+    fwhm_max2=2.355*max(strong_emissionlines[loc1].sigma1)*3.0
+    fwhm_tolerance2=2.355*max(strong_emissionlines[loc1].sigma1)*1.4;-fwhm_min2
+    
+    redshift_min2=min(strong_emissionlines[loc1].redshift)
+    redshift_max2=max(strong_emissionlines[loc1].redshift)
+    redshift_tolerance2=redshift_max2-redshift_min2
+    ;redshift_tolerance2=10.0*redshift_tolerance2
+    redshift_tolerance2=redshift_tolerance
+  endif else begin
+    redshift_strongline=redshift_initial
+    fwhm_strongline=fwhm_initial
+    fwhm_tolerance2=fwhm_tolerance
+    fwhm_min2=fwhm_min
+    fwhm_max2=fwhm_max
+    fwhm_tolerance2=fwhm_max2;-fwhm_min2
+    redshift_tolerance2=redshift_tolerance
+  endelse
+  ;loc1=where(wavelength gt 4706.0 and wavelength lt 4744.0)
+  ;wavelength=wavelength[loc1]
+  ;flux=flux[loc1]
   emissionlines = mgfit_detect_deep_lines(wavelength, flux, deepline_data, $
                                           strong_emissionlines, strongline_data, $
                                           popsize=popsize, pressure=pressure, $
@@ -258,8 +273,10 @@ function mgfit_detect_lines, wavelength, flux, deepline_data, strongline_data, $
                                           fwhm_strongline=fwhm_strongline, $
                                           fwhm_tolerance=fwhm_tolerance2, $
                                           fwhm_min=fwhm_min2, fwhm_max=fwhm_max2, $
+                                          ;/printgenerations, $
                                           auto_line_array_size=auto_line_array_size, $
                                           no_blueshift=no_blueshift, no_mpfit=no_mpfit, $
+                                          /fit_continuum, $
                                           image_output_path=image_output_path)
 
   ; detect the strong lines

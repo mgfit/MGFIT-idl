@@ -42,7 +42,7 @@ function mgfit_init_spec, wavel, flux
 ; :History:
 ;     20/07/2014, A. Danehkar,  IDL code written.
 ;- 
-  spectrumstructure={wavelength: 0.0, flux:0.0, residual:0.0}
+  spectrumstructure={wavelength: double(0.0), flux:double(0.0), residual:double(0.0)}
    
   temp=size(wavel,/DIMENSIONS)
   speclength=temp[0]

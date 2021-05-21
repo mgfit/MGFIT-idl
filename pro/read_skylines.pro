@@ -42,7 +42,7 @@ function read_skylines, fits_file
 ; :History:
 ;     20/07/2014, A. Danehkar, IDL code written.
 ;- 
-  sky_template={Wavelength: 0.0}
+  sky_template={Wavelength:double(0.0)}
   
   ftab_ext,fits_file,[1],Wavelength,EXTEN_NO =5
   temp=size(Wavelength,/DIMENSIONS)

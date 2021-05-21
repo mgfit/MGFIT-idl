@@ -67,8 +67,8 @@ function mgfit_init_fltr_emis, emissionlines, wavel_min, wavel_max, redshift
 ;     
 ;     15/01/2017, A. Danehkar, A few bugs fixed
 ;- 
-  emissionlinestructure={wavelength: 0.0, peak:0.0, sigma1:0.0, flux:0.0, continuum:0.0, uncertainty:0.0, pcerror: 0.0, $
-                         redshift:0.0, resolution:0.0, blended:0, Ion:'', Multiplet:'', LowerTerm:'', UpperTerm:'', g1:'', g2:''}
+  emissionlinestructure={wavelength:double(0.0), peak:double(0.0), sigma1:double(0.0), flux:double(0.0), continuum:double(0.0), uncertainty:double(0.0), pcerror:double(0.0), $
+                         redshift:double(0.0), resolution:double(0.0), blended:0, Ion:'', Multiplet:'', LowerTerm:'', UpperTerm:'', g1:'', g2:''}
 
   temp=size(emissionlines,/DIMENSIONS)
   speclength=temp[0]

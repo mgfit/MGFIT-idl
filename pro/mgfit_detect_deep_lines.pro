@@ -16,7 +16,8 @@ function mgfit_detect_deep_lines, wavelength, flux, deepline_data, $
                                   auto_line_array_size=auto_line_array_size, $
                                   image_output_path=image_output_path, $
                                   printgenerations=printgenerations, $
-                                  no_mpfit=no_mpfit, no_blueshift=no_blueshift
+                                  no_mpfit=no_mpfit, no_blueshift=no_blueshift, $
+                                  fit_continuum=fit_continuum
 ;+
 ;     This function detects lines from the deep line list.
 ;
@@ -120,7 +121,10 @@ function mgfit_detect_deep_lines, wavelength, flux, deepline_data, $
 ;                                 Do not use MPFIT to initialize the seed
 ;
 ;     no_blueshift          :     in, required, type=boolean
-;                                 Forbid the blueshift     
+;                                 Forbid the blueshift  
+;          
+;     fit_continuum         :     in, required, type=boolean
+;                                 Fit the continuum usin the genetic algorithm  
 ;
 ; :Examples:
 ;    For example::
@@ -147,7 +151,7 @@ function mgfit_detect_deep_lines, wavelength, flux, deepline_data, $
 ; :History:
 ;     02/05/2020, A. Danehkar, Create function.
 ;-
-  spectrumstructure={wavelength: 0.0, flux:0.0, residual:0.0}
+  spectrumstructure={wavelength: double(0.0), flux:double(0.0), residual:double(0.0)}
   if keyword_set(wavelength) eq 0 then begin
     print,'wavelength is not set'
     return, 0
@@ -234,7 +238,8 @@ function mgfit_detect_deep_lines, wavelength, flux, deepline_data, $
   
   linearraypos=0
   ;step1=2000
-  step1=interval_wavelength;500
+  ;step1=interval_wavelength;500
+  step1=long(interval_wavelength/(spectrumdata[1].wavelength-spectrumdata[0].wavelength)) 
   step1=nint_idl(2*redshift_tolerance/(1.-spectrumdata[0].wavelength/spectrumdata[1].wavelength))
   line_overlap_h=0
   ;for i=0L,speclength-1,step1 do begin
@@ -242,7 +247,7 @@ function mgfit_detect_deep_lines, wavelength, flux, deepline_data, $
   iw =0
   overlap=nint_idl(redshift_tolerance/(1.-spectrumdata[iw].wavelength/spectrumdata[iw+1].wavelength))
   while (iw + long(overlap/4) lt speclength) do begin
-    overlap=nint_idl(redshift_tolerance/(1.-spectrumdata[iw].wavelength/spectrumdata[iw+1].wavelength))
+    overlap=nint_idl(2*redshift_tolerance/(1.-spectrumdata[iw].wavelength/spectrumdata[iw+1].wavelength))
     if iw + overlap gt speclength then begin
       overlap = speclength - iw - 1
     endif
@@ -310,7 +315,8 @@ function mgfit_detect_deep_lines, wavelength, flux, deepline_data, $
     if (nlines gt 0) then begin
       ;nimage=nimage+1
       ;imagename=output_path+'images/plot'+strtrim(string(i/step1+1),2)+'.eps'
-      imagename='plot_'+strtrim(string(long(startwlen)),2)+'_'+strtrim(string(long(endwlen)),2)+'.eps'
+      ;imagename='plot_'+strtrim(string(long(startwlen)),2)+'_'+strtrim(string(long(endwlen)),2)+'.eps'
+      imagename='plot_'+strtrim(string(long(startwlen)),2)+'_'+strtrim(string(long(endwlen)),2)+'.png'
       ;if long(startwlen) eq 4431 then printgenerations=1 else printgenerations=0
       if keyword_set(auto_line_array_size) eq 0 then begin
         if keyword_set(image_output_path) eq 1 then begin
@@ -320,14 +326,16 @@ function mgfit_detect_deep_lines, wavelength, flux, deepline_data, $
             generations, popsize, pressure, line_array_size=linelocation0_step, $
             printgenerations=printgenerations, $
             no_blueshift=no_blueshift, /printimage, imagename=imagename, image_output_path=image_output_path, $
-            no_mpfit=no_mpfit, rebin_resolution=rebin_resolution)
+            no_mpfit=no_mpfit, rebin_resolution=rebin_resolution, $
+            fit_continuum=fit_continuum)
         endif else begin
           emissionlines_section = mgfit_emis(spec_section, redshift_initial, fwhm_initial, $
             emissionlines_section, redshift_tolerance, fwhm_tolerance, $
             fwhm_min, fwhm_max, $
             generations, popsize, pressure, line_array_size=linelocation0_step, $
             printgenerations=printgenerations, $
-            no_blueshift=no_blueshift, no_mpfit=no_mpfit, rebin_resolution=rebin_resolution)
+            no_blueshift=no_blueshift, no_mpfit=no_mpfit, rebin_resolution=rebin_resolution, $
+            fit_continuum=fit_continuum)
         endelse
       endif else begin
         if keyword_set(image_output_path) eq 1 then begin
@@ -337,14 +345,16 @@ function mgfit_detect_deep_lines, wavelength, flux, deepline_data, $
             generations, popsize, pressure, $ ;line_array_size=linelocation0_step, $
             printgenerations=printgenerations, $
             no_blueshift=no_blueshift, /printimage, imagename=imagename, image_output_path=image_output_path, $
-            no_mpfit=no_mpfit, rebin_resolution=rebin_resolution) 
+            no_mpfit=no_mpfit, rebin_resolution=rebin_resolution, $
+            fit_continuum=fit_continuum) 
         endif else begin
           emissionlines_section = mgfit_emis(spec_section, redshift_initial, fwhm_initial, $
             emissionlines_section, redshift_tolerance, fwhm_tolerance, $
             fwhm_min, fwhm_max, $
             generations, popsize, pressure, $ ;line_array_size=linelocation0_step, $
             printgenerations=printgenerations, $
-            no_blueshift=no_blueshift, no_mpfit=no_mpfit, rebin_resolution=rebin_resolution) 
+            no_blueshift=no_blueshift, no_mpfit=no_mpfit, rebin_resolution=rebin_resolution, $
+            fit_continuum=fit_continuum) 
         endelse
       endelse
 

@@ -88,7 +88,7 @@ function mgfit_emis_err, syntheticspec, spectrumdata, emissionlines, redshift, $
 ;-
   temp=size(spectrumdata,/DIMENSIONS)
   speclength=temp[0]
-  residuals = fltarr(speclength)
+  residuals = dblarr(speclength)
   
   ;continuum=mgfit_contin(spectrumdata)
   ;spectrumdata.flux=spectrumdata.flux-continuum.flux
@@ -119,7 +119,7 @@ function mgfit_emis_err, syntheticspec, spectrumdata, emissionlines, redshift, $
       residuals_select=abs(residuals[i-residuals_num1:i+residuals_num1-1])
       residuals_sort=sort(residuals_select)
       residuals_select=residuals_select[residuals_sort]
-      rms_noise=(total(residuals_select[0:residuals_num2-1]^2)/float(residuals_num2))^0.5
+      rms_noise=(total(residuals_select[0:residuals_num2-1]^2)/double(residuals_num2))^0.5
       spectrumdata[i].residual=rms_noise
     endfor
     spectrumdata[0:residuals_num1-1].residual=spectrumdata[residuals_num1].residual
@@ -130,7 +130,7 @@ function mgfit_emis_err, syntheticspec, spectrumdata, emissionlines, redshift, $
     residuals_select=abs(residuals[0:speclength-1])
     residuals_sort=sort(residuals_select)
     residuals_select=residuals_select[residuals_sort]
-    rms_noise=(total(residuals_select[0:speclength-1]^2)/float(speclength))^0.5
+    rms_noise=(total(residuals_select[0:speclength-1]^2)/double(speclength))^0.5
     spectrumdata[*].residual=rms_noise
     temp=size(spectrumdata.residual,/DIMENSIONS)
     residual_size=temp[0]
@@ -162,7 +162,7 @@ function mgfit_emis_err, syntheticspec, spectrumdata, emissionlines, redshift, $
       fwhm=2*sqrt(2*alog(2))*emissionlines[i].sigma1
       rms_noise=spectrumdata[waveindex].residual
       if keyword_set(rebin_resolution) eq 1 then begin
-        delta_wavelength=float(rebin_resolution)*abs(spectrumdata[waveindex].wavelength - spectrumdata[waveindex-1].wavelength)
+        delta_wavelength=double(rebin_resolution)*abs(spectrumdata[waveindex].wavelength - spectrumdata[waveindex-1].wavelength)
       endif else begin
         delta_wavelength=abs(spectrumdata[waveindex].wavelength - spectrumdata[waveindex-1].wavelength)
       endelse

@@ -52,7 +52,7 @@ function mgfit_whitenoise, spectrumdata, rebin_resolution=rebin_resolution
 ;     
 ;     21/11/2017, A. Danehkar, Some modifications.
 ;- 
-  spectrumstructure={wavelength: 0.0, flux:0.0, residual:0.0}
+  spectrumstructure={wavelength:double(0.0), flux:double(0.0), residual:double(0.0)}
   temp=size(spectrumdata,/DIMENSIONS)
   speclength=temp[0]
   whitenoise =replicate(spectrumstructure, speclength)
@@ -65,7 +65,7 @@ function mgfit_whitenoise, spectrumdata, rebin_resolution=rebin_resolution
     residuals_num=10
     residuals_num2=5
   endelse
-  specsample=fltarr(2*residuals_num+1)
+  specsample=dblarr(2*residuals_num+1)
   whitenoise[*].wavelength = spectrumdata[*].wavelength
   whitenoise[*].flux = spectrumdata[*].flux
   whitenoise[*].residual = 0.0
@@ -75,7 +75,7 @@ function mgfit_whitenoise, spectrumdata, rebin_resolution=rebin_resolution
     endfor
     sortsample=sort(specsample)
     specsample=specsample[sortsample]
-    rms_noise=(total(specsample[0:residuals_num2-1]^2.)/float(residuals_num2))^0.5  
+    rms_noise=(total(specsample[0:residuals_num2-1]^2.)/double(residuals_num2))^0.5  
     whitenoise[i].residual = rms_noise
   endfor
   whitenoise[0:residuals_num-1].residual = whitenoise[residuals_num].residual

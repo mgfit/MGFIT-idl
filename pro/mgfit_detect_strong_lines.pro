@@ -13,7 +13,8 @@ function mgfit_detect_strong_lines, wavelength, flux, strongline_data, $
                                     auto_line_array_size=auto_line_array_size, $
                                     image_output_path=image_output_path, $
                                     printgenerations=printgenerations, $
-                                    no_mpfit=no_mpfit, no_blueshift=no_blueshift
+                                    no_mpfit=no_mpfit, no_blueshift=no_blueshift, $
+                                    fit_continuum=fit_continuum
 ;+
 ;     This function detects lines from the strong line list.
 ;
@@ -91,8 +92,11 @@ function mgfit_detect_strong_lines, wavelength, flux, strongline_data, $
 ;                                 Do not use MPFIT to initialize the seed
 ;
 ;     no_blueshift          :     in, required, type=boolean
-;                                 Forbid the blueshift      
-;   
+;                                 Forbid the blueshift   
+;                                 
+;     fit_continuum         :     in, required, type=boolean
+;                                 Fit the continuum usin the genetic algorithm
+;                                 
 ; :Examples:
 ;    For example::
 ;
@@ -117,7 +121,7 @@ function mgfit_detect_strong_lines, wavelength, flux, strongline_data, $
 ; :History:
 ;     02/05/2020, A. Danehkar, Create function.
 ;-
-  spectrumstructure={wavelength: 0.0, flux:0.0, residual:0.0}
+  spectrumstructure={wavelength: double(0.0), flux:double(0.0), residual:double(0.0)}
   if keyword_set(wavelength) eq 0 then begin 
     print,'wavelength is not set'
     return, 0
@@ -140,7 +144,7 @@ function mgfit_detect_strong_lines, wavelength, flux, strongline_data, $
     generations=500.
   endif
   if keyword_set(interval_wavelength) eq 0 then begin
-    interval_wavelength = 500
+    interval_wavelength = 20
   endif
   if keyword_set(redshift_initial) eq 0 then begin
     redshift_initial = 1.0
@@ -208,14 +212,14 @@ function mgfit_detect_strong_lines, wavelength, flux, strongline_data, $
 
   linearraypos=0
   ;step1=2000
-  step1=interval_wavelength;500
+  ;step1=long(interval_wavelength/(spectrumdata[1].wavelength-spectrumdata[0].wavelength)) ;500
   step1=nint_idl(2*redshift_tolerance/(1.-spectrumdata[0].wavelength/spectrumdata[1].wavelength))
   line_overlap_h=0
   ;for i=0L,speclength-1,step1 do begin
   iw =0
   overlap=nint_idl(redshift_tolerance/(1.-spectrumdata[iw].wavelength/spectrumdata[iw+1].wavelength))
   while ((iw + long(overlap/4)) lt speclength) do begin
-    overlap=nint_idl(redshift_tolerance/(1.-spectrumdata[iw].wavelength/spectrumdata[iw+1].wavelength))
+    overlap=nint_idl(2*redshift_tolerance/(1.-spectrumdata[iw].wavelength/spectrumdata[iw+1].wavelength))
     if iw + overlap gt speclength then begin
       overlap = speclength - iw - 1
     endif
@@ -230,11 +234,11 @@ function mgfit_detect_strong_lines, wavelength, flux, strongline_data, $
     endif else begin
       startpos=iw;-long(overlap)-line_overlap_h
       startwlen=spectrumdata[startpos].wavelength;/redshift_initial_overall
-      emissionlines_check = mgfit_init_fltr_emis(strongline_data, (startwlen-long(overlapwlen/4)), startwlen, redshift_initial)
+      emissionlines_check = mgfit_init_fltr_emis(strongline_data, (startwlen-long(overlapwlen/8)), startwlen, redshift_initial)
       temp=size(emissionlines_check,/DIMENSIONS)
       nlines=temp[0]
       if (nlines gt 0) then begin
-        if emissionlines_check[0].wavelength*(redshift_initial) le startwlen+long(overlapwlen/4)  then begin
+        if emissionlines_check[0].wavelength*(redshift_initial) le startwlen+long(overlapwlen/8)  then begin
           startpos=startpos-long(overlap)
           startwlen=spectrumdata[startpos].wavelength
         endif
@@ -248,7 +252,7 @@ function mgfit_detect_strong_lines, wavelength, flux, strongline_data, $
       endpos=iw+long(overlap)+line_overlap_h-1
       ;endwlen=spectrumdata[iw+step1].wavelength;/redshift_initial_overall
       endwlen=spectrumdata[endpos].wavelength;/redshift_initial_overall
-      emissionlines_check = mgfit_init_fltr_emis(strongline_data, (endwlen-long(overlapwlen/4)), (endwlen+long(overlapwlen/4)), redshift_initial)
+      emissionlines_check = mgfit_init_fltr_emis(strongline_data, (endwlen-long(overlapwlen/2)), (endwlen+long(overlapwlen/2)), redshift_initial)
       temp=size(emissionlines_check,/DIMENSIONS)
       nlines=temp[0]
       if (nlines gt 0) then begin
@@ -273,30 +277,50 @@ function mgfit_detect_strong_lines, wavelength, flux, strongline_data, $
           fwhm_min, fwhm_max, $
           generations, popsize, pressure, line_array_size=linelocation0_step, $
           image_output_path=image_output_path, printgenerations=printgenerations, $
-          no_blueshift=no_blueshift, no_mpfit=no_mpfit, rebin_resolution=rebin_resolution)
+          no_blueshift=no_blueshift, no_mpfit=no_mpfit, rebin_resolution=rebin_resolution, $
+          fit_continuum=fit_continuum)
       endif else begin
         emissionlines_section = mgfit_emis(spec_section, redshift_initial, fwhm_initial, $
           emissionlines_section, redshift_tolerance, fwhm_tolerance, $
           fwhm_min, fwhm_max, $
           generations, popsize, pressure, $; , line_array_size=linelocation0_step, $   
           image_output_path=image_output_path, printgenerations=printgenerations, $
-          no_blueshift=no_blueshift, no_mpfit=no_mpfit, rebin_resolution=rebin_resolution)
+          no_blueshift=no_blueshift, no_mpfit=no_mpfit, rebin_resolution=rebin_resolution, $
+          fit_continuum=fit_continuum)
       endelse
 
-      strong_line=min(where(emissionlines_section.flux eq max(emissionlines_section.flux)))
+;      strong_line=min(where(emissionlines_section.flux eq max(emissionlines_section.flux)))
       ;redshift_initial0 = emissionlines_section[strong_line].redshift
       ;redshift_initial=redshift_initial0
-      if strong_line[0] ne -1 then begin
+;      if strong_line[0] ne -1 then begin
         ;redshift_initial=emissionlines_section[strong_line].redshift
-        if nlines gt 1 then begin
-          strong_emissionlines[linearraypos:linearraypos+nlines-1]=emissionlines_section
-        endif else begin
+;        if nlines gt 1 then begin
+;          strong_emissionlines[linearraypos:linearraypos+nlines-1]=emissionlines_section
+;        endif else begin
           ;temp=size(strong_emissionlines,/DIMENSIONS)
           ;if linearraypos lt temp[0] then begin
-          strong_emissionlines[linearraypos]=emissionlines_section
+;          strong_emissionlines[linearraypos]=emissionlines_section
           ;endif
-        endelse
-      endif
+;        endelse
+;      endif
+      
+      if nlines gt 1 then begin
+        ;emissionlines[linearraypos:linearraypos+nlines-1]=emissionlines_section
+        for ic=0, nlines-1 do begin
+          loc1=where(strong_emissionlines.wavelength eq emissionlines_section[ic].wavelength)
+          if loc1[0] ne -1 then begin
+            strong_emissionlines[loc1]=emissionlines_section[ic]
+          endif
+        endfor   
+      endif else begin
+        if emissionlines_section.wavelength gt startwlen and emissionlines_section.wavelength lt endwlen then begin
+          ;emissionlines[linearraypos]=emissionlines_section
+          loc1=where(strong_emissionlines.wavelength eq emissionlines_section[0].wavelength)
+          if loc1[0] ne -1 then begin
+            strong_emissionlines[loc1]=emissionlines_section[0]
+          endif
+        endif
+      endelse
       linearraypos=linearraypos+nlines
 
       print, "Level %:", double(iw+1)/double(speclength)*100.0

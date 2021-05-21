@@ -104,7 +104,7 @@ pro mgfit_save_lines, emissionlines, filename, $
       flux_hbeta_pcerror = emissionlines[flux_hbeta_loc].pcerror
       flux_hbeta_redhsift = emissionlines[flux_hbeta_loc].redshift
       
-      flux_halpha = flux_hbeta*ha_hb_flux_ratio
+      flux_halpha = flux_hbeta*ha_hb_flux_ratio 
       flux_halpha_err = flux_hbeta_err
       flux_halpha_redhsift = flux_hbeta_redhsift
     endelse

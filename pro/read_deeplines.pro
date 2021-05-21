@@ -50,7 +50,7 @@ function read_deeplines, fits_file, EXTEN_NO=EXTEN_NO
 ;     
 ;     16/06/2017, A. Danehkar, A few changes.
 ;- 
-  line_template={Wavelength: 0.0, Ion:'', Multiplet:'', LowerTerm:'', UpperTerm:'', g1:'', g2:''}
+  line_template={Wavelength:double(0.0), Ion:'', Multiplet:'', LowerTerm:'', UpperTerm:'', g1:'', g2:''}
   
   if keyword_set(EXTEN_NO) eq 1 then begin
     ftab_ext,fits_file,[1,2,3,4,5,6,7],Wavelength,Ion,Multiplet,LowerTerm,UpperTerm,g1,g2,EXTEN_NO =EXTEN_NO
