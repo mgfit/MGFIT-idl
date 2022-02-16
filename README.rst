@@ -2,8 +2,8 @@
 MGFIT-idl
 =========
     
-.. image:: https://travis-ci.com/mgfit/MGFIT-idl.svg?branch=master
-    :target: https://travis-ci.com/mgfit/MGFIT-idl
+.. image:: https://app.travis-ci.com/mgfit/MGFIT-idl.svg?branch=master
+    :target: https://app.travis-ci.com/github/mgfit/MGFIT-idl
     :alt: Build Status
 
 .. image:: https://ci.appveyor.com/api/projects/status/pavs6wccoxtho5xb?svg=true
