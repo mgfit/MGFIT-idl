@@ -1,0 +1,5 @@
+!PATH=!PATH + ':~/pro/'
+!PATH=!PATH + ':~/externals/astron/pro/'
+!PATH=!PATH + ':~/externals/coyote/pro/'
+!PATH=!PATH + ':~/externals/coyote/public/'
+!PATH=!PATH + ':~/externals/mpfit/'
