@@ -3,3 +3,4 @@
 !PATH=!PATH + ':~/externals/coyote/pro/'
 !PATH=!PATH + ':~/externals/coyote/public/'
 !PATH=!PATH + ':~/externals/mpfit/'
+!PATH=!PATH + ':~/externals/gdl.0.9.7/'
