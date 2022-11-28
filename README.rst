@@ -45,7 +45,9 @@ Dependent IDL Packages
 
     - `The TextoIDL Library <http://physics.mnstate.edu/craig/textoidl/>`_
     
-* To get this package with all the dependent packages, you can simply use ``git`` command as follows::
+* To get this package with all the dependent packages, you can simply use ``git`` command as follows:
+
+    .. code-block::
 
         git clone --recursive https://github.com/mgfit/MGFIT-idl
 
@@ -63,20 +65,28 @@ Installation in GDL
 
 *  You can install the GNU Data Language (GDL) if you do not have it on your machine:
 
-    - Linux (Fedora)::
+    - Linux (Fedora):
+    
+      .. code-block::
 
         sudo dnf install gdl
     
-    - Linux (Ubuntu)::
+    - Linux (Ubuntu):
+    
+      .. code-block::
     
         sudo apt-get install gnudatalanguage
     
-    - OS X (`brew <https://brew.sh/>`_)::
+    - OS X (`brew <https://brew.sh/>`_):
+    
+      .. code-block::
 
         brew tap brewsci/science
         brew install gnudatalanguage
 
-    - OS X (`macports <https://www.macports.org/>`_)::
+    - OS X (`macports <https://www.macports.org/>`_):
+    
+      .. code-block::
 
         sudo port selfupdate
         sudo port upgrade libtool
@@ -84,7 +94,9 @@ Installation in GDL
     
     - Windows: You can use the `GNU Data Language for Win32 <https://sourceforge.net/projects/gnudatalanguage-win32/>`_ (Unofficial Version) or you can compile the `GitHub source <https://github.com/gnudatalanguage/gdl>`_ using Visual Studio 2015 as shown in `appveyor.yml <https://github.com/gnudatalanguage/gdl/blob/master/appveyor.yml>`_.
 
-* To install the **MGFIT** library in GDL, you need to add the path of this package directory to your ``.gdl_startup`` file in your home directory::
+* To install the **MGFIT** library in GDL, you need to add the path of this package directory to your ``.gdl_startup`` file in your home directory:
+
+  .. code-block::
 
     !PATH=!PATH + ':/home/MGFIT-idl/pro/'
     !PATH=!PATH + ':/home/MGFIT-idl/externals/astron/pro/'
@@ -93,11 +105,15 @@ Installation in GDL
     !PATH=!PATH + ':/home/MGFIT-idl/externals/mpfit/'
     !PATH=!PATH + ':/home/MGFIT-idl/externals/textoidl/'
   
-  You may also need to set ``GDL_STARTUP`` if you have not done in ``.bashrc`` (bash)::
+  You may also need to set ``GDL_STARTUP`` if you have not done in ``.bashrc`` (bash):
+  
+  .. code-block::
 
     export GDL_STARTUP=~/.gdl_startup
 
-  or in ``.tcshrc`` (cshrc)::
+  or in ``.tcshrc`` (cshrc):
+  
+  .. code-block::
 
     setenv GDL_STARTUP ~/.gdl_startup
 
@@ -108,7 +124,9 @@ How to Use
 
 The Documentation of the IDL functions provides in detail in the *API Documentation* (`mgfit.github.io/MGFIT-idl/doc <https://mgfit.github.io/MGFIT-idl/doc>`_). This IDL library fit multiple Gaussian functions to a list of emission lines in the given input spectrum.
 
-You need to load the line list database::
+You need to load the line list database:
+
+.. code-block:: idl
 
     base_dir = file_dirname(file_dirname((routine_info('$MAIN$', /source)).path))
     data_dir = ['data']
@@ -116,26 +134,34 @@ You need to load the line list database::
     strongline_data=read_stronglines(fits_file)
     deepline_data=read_deeplines(fits_file)
 
-also load your spectrum arrays: wavelength array, and flux array (see `examples <https://github.com/mgfit/MGFIT-idl/tree/master/examples>`_)::
+also load your spectrum arrays: wavelength array, and flux array (see `examples <https://github.com/mgfit/MGFIT-idl/tree/master/examples>`_):
+
+.. code-block:: idl
 
     input_dir = ['examples','inputs']
     input_file = filepath('spectrum.txt', root_dir=base_dir, subdir=input_dir )
     mgfit_read_ascii, input_file, wavel, flux
 
-and define the output paths::
+and define the output paths:
+
+.. code-block:: idl
 
     output_dir = ['examples','outputs']
     image_dir = ['examples','images']
     image_output_path = filepath('', root_dir=base_dir, subdir=image_dir )
     output_path = filepath('', root_dir=base_dir, subdir=output_dir )
 
-You need to specify the genetic algorithm settings::
+You need to specify the genetic algorithm settings:
+
+.. code-block:: idl
 
     popsize=30.
     pressure=0.3
     generations=500.
 
-and use the appropriate fitting settings such as the wavelength interval, the redshift, and the spectral FWHM::
+and use the appropriate fitting settings such as the wavelength interval, the redshift, and the spectral FWHM:
+
+.. code-block:: idl
 
     interval_wavelength=500
     redshift_initial = 1.0
@@ -145,7 +171,9 @@ and use the appropriate fitting settings such as the wavelength interval, the re
     fwhm_min=0.1
     fwhm_max=1.8
 
-Now you run the MGFIT main function as follows::
+Now you run the MGFIT main function as follows:
+
+.. code-block:: idl
 
     emissionlines = mgfit_detect_lines(wavel, flux, deepline_data, strongline_data, $
                                        popsize=popsize, pressure=pressure, $
@@ -161,7 +189,9 @@ Now you run the MGFIT main function as follows::
     output_filename=output_path+'line_list'
     mgfit_save_lines, emissionlines, output_filename
 
-Alternatively, you could load the **mgfit** object class, which automatically loads the line list database as follows::
+Alternatively, you could load the **mgfit** object class, which automatically loads the line list database as follows:
+
+.. code-block:: idl
 
     mg=obj_new('mgfit')
     mg->set_output_path, output_path
